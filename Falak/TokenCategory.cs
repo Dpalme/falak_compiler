@@ -16,28 +16,53 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace Falak {
+namespace Falak
+{
 
-    enum TokenCategory {
+    enum TokenCategory
+    {
         AND,
+        ARRAY,
         ASSIGN,
         BOOL,
+        BIT_OR,
+        BREAK,
+        COMMENT,
+        CODE_GROUP,
+        CHARACTER,
+        DEC,
+        DO,
         END,
         EOF,
+        ELSE,
+        ELSE_IF,
+        EQUALS,
         FALSE,
         IDENTIFIER,
         IF,
         INT,
         INT_LITERAL,
+        INC,
         LESS,
+        LESS_EQUALS,
         MUL,
+        MORE,
+        MORE_EQUALS,
         NEG,
-        PARENTHESIS_OPEN,
-        PARENTHESIS_CLOSE,
+        NEW_LINE,
+        NOT_EQUALS,
+        OR,
+        OTHER,
+        // PARENTHESIS_OPEN, SOFT GROUP? OR INDIVIDUAL CHAR?
+        // PARENTHESIS_CLOSE, SAME AS ABOVE
         PLUS,
         PRINT,
+        RETURN,
+        STRING,
         THEN,
         TRUE,
-        ILLEGAL_CHAR
+        VAR,
+        WHILE,
+        // ILLEGAL_CHAR
     }
 }

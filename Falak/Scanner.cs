@@ -30,8 +30,8 @@ namespace Falak {
         static readonly Regex regex = new Regex(
             @"
                 (?<Comment>    (?:#.*)|(<#.*?#>)        )
-              | (?<SoftGroup>  [(].*?[)]                )
-              | (?<CodeGroup>  [{].*?[}]                )
+              | (?<SoftGroup>  [(].*?[)]                ) # NOT CATEGORIZED YET
+              | (?<CodeGroup>  [{].*?[}]                ) # NOT CATEGORIZED YET
               | (?<Array>      \[.*?\]                  )
               | (?<Newline>    \n                       )
               | (?<WhiteSpace> \s                       )     # Must go after Newline.
@@ -48,24 +48,28 @@ namespace Falak {
               | (?<Equals>     [=][=]                   )
               | (?<NotEquals>  [!][=]                   )
               | (?<Assign>     [=]                      )
-              | (?<True>       true                     )
-              | (?<False>      false                    )
               | (?<IntLiteral> \d+                      )
+              
+              # KeyWords (12)
+
               | (?<Break>      break\b                  )
-              | (?<Return>     return\b                 )
               | (?<Dec>        dec\b                    )
-              | (?<Inc>        inc\b                    )
               | (?<Do>         do\b                     )
-              | (?<Boolean>    (?:true\b)|(?:false\b)   )
-              | (?<Integer>    -?[1-9][0-9]{0-9}\b      )
-              | (?<Character>  '(?:[\](?:n|r|t|[\]|'|\|""|u[0-9a-fA-F]{8})'\b  )
-              | (?<String>     ""\w\s""\b    )
-              | (?<End>        ;\b                      )
-              | (?<If>         if\b                     )
               | (?<Else>       else\b                   )
               | (?<ElseIf>     elseif\b                 )
+              | (?<False>      false                    )
+              | (?<If>         if\b                     )
+              | (?<Inc>        inc\b                    )
+              | (?<Return>     return\b                 )
+              | (?<True>       true                     )
               | (?<Var>        var\b                    )
               | (?<While>      while\b                  )
+
+              | (?<Bool>    (?:true\b)|(?:false\b)   )
+              | (?<Int>    -?[1-9][0-9]{0-9}\b      )
+              | (?<Character>  '(?:[\](?:n|r|t|[\]|'|\|""|u[0-9a-fA-F]{8})'\b  )
+              | (?<String>     ""([^""\n\\]|\\([nrt\\'""]|u[0-9a-fA-F]{6}))*""    )
+              | (?<End>        ;\b                      )
               | (?<Print>      print\b                  )
               | (?<Then>       then\b                   )
               | (?<Identifier> [a-zA-Z][a-Z_0-9]*       )     # Must go after all keywords
@@ -79,23 +83,47 @@ namespace Falak {
         static readonly IDictionary<string, TokenCategory> tokenMap =
             new Dictionary<string, TokenCategory>() {
                 {"And", TokenCategory.AND},
-                {"Less", TokenCategory.LESS},
-                {"Plus", TokenCategory.PLUS},
-                {"Mul", TokenCategory.MUL},
-                {"Neg", TokenCategory.NEG},
-                {"ParLeft", TokenCategory.PARENTHESIS_OPEN},
-                {"ParRight", TokenCategory.PARENTHESIS_CLOSE},
+                {"Array", TokenCategory.ARRAY},
                 {"Assign", TokenCategory.ASSIGN},
-                {"True", TokenCategory.TRUE},
-                {"False", TokenCategory.FALSE},
-                {"IntLiteral", TokenCategory.INT_LITERAL},
                 {"Bool", TokenCategory.BOOL},
+                {"BitOr",TokenCategory.BIT_OR},
+                {"Break", TokenCategory.BREAK},
+                {"Comment", TokenCategory.COMMENT},
+                {"CodeGruop", TokenCategory.CODE_GROUP},
+                {"Character", TokenCategory.CHARACTER},
+                {"Dec", TokenCategory.DEC},
+                {"Do", TokenCategory.DO},
                 {"End", TokenCategory.END},
+                // EOF?
+                {"Else", TokenCategory.ELSE},
+                {"ElseIf", TokenCategory.ELSE_IF},
+                {"Equals", TokenCategory.EQUALS},
+                {"False", TokenCategory.FALSE},
+                {"Identifier", TokenCategory.IDENTIFIER},
                 {"If", TokenCategory.IF},
                 {"Int", TokenCategory.INT},
+                {"IntLiteral", TokenCategory.INT_LITERAL},
+                {"Inc", TokenCategory.INC},
+                {"Less", TokenCategory.LESS},
+                {"LessEquals", TokenCategory.LESS_EQUALS},
+                {"Mul", TokenCategory.MUL},
+                {"More", TokenCategory.MORE},
+                {"MoreEquals", TokenCategory.MORE_EQUALS},
+                {"Neg", TokenCategory.NEG},
+                {"NewLine", TokenCategory.NEW_LINE},
+                {"NotEquals", TokenCategory.NOT_EQUALS},
+                {"Or", TokenCategory.OR},
+                {"Other", TokenCategory.OTHER},
+                {"Plus", TokenCategory.PLUS},
                 {"Print", TokenCategory.PRINT},
+                {"Return", TokenCategory.RETURN},
+                {"String", TokenCategory.STRING},
                 {"Then", TokenCategory.THEN},
-                {"Identifier", TokenCategory.IDENTIFIER}
+                {"True", TokenCategory.TRUE},
+                {"Var", TokenCategory.VAR},
+                {"While", TokenCategory.WHILE}
+                // {"ParLeft", TokenCategory.PARENTHESIS_OPEN},
+                // {"ParRight", TokenCategory.PARENTHESIS_CLOSE},
             };
 
         public Scanner(string input) {

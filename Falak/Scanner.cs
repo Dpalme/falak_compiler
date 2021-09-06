@@ -34,7 +34,7 @@ namespace Falak {
               | (?<CodeGroup>  [{].*?[}]                ) # NOT CATEGORIZED YET
               | (?<Array>      \[.*?\]                  )
               | (?<Newline>    \n                       )
-              | (?<WhiteSpace> \s                       )     # Must go after Newline.
+              | (?<WhiteSpace> \s                       ) # Must go after Newline.
               | (?<And>        [&][&]                   )
               | (?<Or>         [|][|]                   )
               | (?<BitOr>      [^]                      )
@@ -65,9 +65,9 @@ namespace Falak {
               | (?<Var>        var\b                    )
               | (?<While>      while\b                  )
 
-              | (?<Bool>    (?:true\b)|(?:false\b)   )
-              | (?<Int>    -?[1-9][0-9]{0-9}\b      )
-              | (?<Character>  '(?:[\](?:n|r|t|[\]|'|\|""|u[0-9a-fA-F]{8})'\b  )
+              | (?<Bool>       (?:true\b)|(?:false\b)   )
+              | (?<Int>        -?[1-9][0-9]{0-9}\b      )
+              | (?<Character>  '((\\(n|r|t|\\|'|""|u[a-fA-F0-9]{6}))|[a-zA-Z0-9])' )
               | (?<String>     ""([^""\n\\]|\\([nrt\\'""]|u[0-9a-fA-F]{6}))*""    )
               | (?<End>        ;\b                      )
               | (?<Print>      print\b                  )
@@ -121,9 +121,9 @@ namespace Falak {
                 {"Then", TokenCategory.THEN},
                 {"True", TokenCategory.TRUE},
                 {"Var", TokenCategory.VAR},
-                {"While", TokenCategory.WHILE}
-                // {"ParLeft", TokenCategory.PARENTHESIS_OPEN},
-                // {"ParRight", TokenCategory.PARENTHESIS_CLOSE},
+                {"While", TokenCategory.WHILE},
+                {"ParLeft", TokenCategory.PARENTHESIS_OPEN},
+                {"ParRight", TokenCategory.PARENTHESIS_CLOSE},
             };
 
         public Scanner(string input) {

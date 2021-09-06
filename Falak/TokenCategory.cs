@@ -53,8 +53,8 @@ namespace Falak
         NOT_EQUALS,
         OR,
         OTHER,
-        // PARENTHESIS_OPEN, SOFT GROUP? OR INDIVIDUAL CHAR?
-        // PARENTHESIS_CLOSE, SAME AS ABOVE
+        PARENTHESIS_OPEN,// SOFT GROUP? OR INDIVIDUAL CHAR?
+        PARENTHESIS_CLOSE,// SAME AS ABOVE
         PLUS,
         PRINT,
         RETURN,
@@ -63,6 +63,6 @@ namespace Falak
         TRUE,
         VAR,
         WHILE,
-        // ILLEGAL_CHAR
+        ILLEGAL_CHAR,
     }
 }

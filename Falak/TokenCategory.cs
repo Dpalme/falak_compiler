@@ -64,5 +64,15 @@ namespace Falak
         VAR,
         WHILE,
         ILLEGAL_CHAR,
+        SOFTGROUP,
+        CODEGROUP,
+        NEWLINE,
+        WHITESPACE,
+        BITOR,
+        LESSEQUALS,
+        MOREEQUALS,
+        NOTEQUALS,
+        INTLITERAL,
+        ELSEIF
     }
 }

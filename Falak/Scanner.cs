@@ -21,9 +21,11 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Falak {
+namespace Falak
+{
 
-    class Scanner {
+    class Scanner
+    {
 
         readonly string input;
 
@@ -82,73 +84,80 @@ namespace Falak {
 
         static readonly IDictionary<string, TokenCategory> tokenMap =
             new Dictionary<string, TokenCategory>() {
-                {"And", TokenCategory.AND},
-                {"Array", TokenCategory.ARRAY},
-                {"Assign", TokenCategory.ASSIGN},
-                {"Bool", TokenCategory.BOOL},
-                {"BitOr",TokenCategory.BIT_OR},
-                {"Break", TokenCategory.BREAK},
                 {"Comment", TokenCategory.COMMENT},
-                {"CodeGruop", TokenCategory.CODE_GROUP},
-                {"Character", TokenCategory.CHARACTER},
+                {"SoftGroup", TokenCategory.SOFTGROUP},
+                {"CodeGroup", TokenCategory.CODEGROUP},
+                {"Array", TokenCategory.ARRAY},
+                {"Newline", TokenCategory.NEWLINE},
+                {"WhiteSpace", TokenCategory.WHITESPACE},
+                {"And", TokenCategory.AND},
+                {"Or", TokenCategory.OR},
+                {"BitOr", TokenCategory.BITOR},
+                {"LessEquals", TokenCategory.LESSEQUALS},
+                {"MoreEquals", TokenCategory.MOREEQUALS},
+                {"Less", TokenCategory.LESS},
+                {"More", TokenCategory.MORE},
+                {"Plus", TokenCategory.PLUS},
+                {"Neg", TokenCategory.NEG},
+                {"Mul", TokenCategory.MUL},
+                {"Equals", TokenCategory.EQUALS},
+                {"NotEquals", TokenCategory.NOTEQUALS},
+                {"Assign", TokenCategory.ASSIGN},
+                {"IntLiteral", TokenCategory.INTLITERAL},
+                {"Break", TokenCategory.BREAK},
                 {"Dec", TokenCategory.DEC},
                 {"Do", TokenCategory.DO},
-                {"End", TokenCategory.END},
-                // EOF?
                 {"Else", TokenCategory.ELSE},
-                {"ElseIf", TokenCategory.ELSE_IF},
-                {"Equals", TokenCategory.EQUALS},
+                {"ElseIf", TokenCategory.ELSEIF},
                 {"False", TokenCategory.FALSE},
-                {"Identifier", TokenCategory.IDENTIFIER},
                 {"If", TokenCategory.IF},
-                {"Int", TokenCategory.INT},
-                {"IntLiteral", TokenCategory.INT_LITERAL},
                 {"Inc", TokenCategory.INC},
-                {"Less", TokenCategory.LESS},
-                {"LessEquals", TokenCategory.LESS_EQUALS},
-                {"Mul", TokenCategory.MUL},
-                {"More", TokenCategory.MORE},
-                {"MoreEquals", TokenCategory.MORE_EQUALS},
-                {"Neg", TokenCategory.NEG},
-                {"NewLine", TokenCategory.NEW_LINE},
-                {"NotEquals", TokenCategory.NOT_EQUALS},
-                {"Or", TokenCategory.OR},
-                {"Other", TokenCategory.OTHER},
-                {"Plus", TokenCategory.PLUS},
-                {"Print", TokenCategory.PRINT},
                 {"Return", TokenCategory.RETURN},
-                {"String", TokenCategory.STRING},
-                {"Then", TokenCategory.THEN},
                 {"True", TokenCategory.TRUE},
                 {"Var", TokenCategory.VAR},
                 {"While", TokenCategory.WHILE},
-                {"ParLeft", TokenCategory.PARENTHESIS_OPEN},
-                {"ParRight", TokenCategory.PARENTHESIS_CLOSE},
+                {"Bool", TokenCategory.BOOL},
+                {"Int", TokenCategory.INT},
+                {"Character", TokenCategory.CHARACTER},
+                {"String", TokenCategory.STRING},
+                {"End", TokenCategory.END},
+                {"Print", TokenCategory.PRINT},
+                {"Then", TokenCategory.THEN},
+                {"Identifier", TokenCategory.IDENTIFIER},
+                {"Other", TokenCategory.OTHER}
             };
 
-        public Scanner(string input) {
+        public Scanner(string input)
+        {
             this.input = input;
         }
 
-        public IEnumerable<Token> Scan() {
+        public IEnumerable<Token> Scan()
+        {
 
             var result = new LinkedList<Token>();
             var row = 1;
             var columnStart = 0;
 
-            foreach (Match m in regex.Matches(input)) {
+            foreach (Match m in regex.Matches(input))
+            {
 
-                if (m.Groups["Newline"].Success) {
+                if (m.Groups["Newline"].Success)
+                {
 
                     row++;
                     columnStart = m.Index + m.Length;
 
-                } else if (m.Groups["WhiteSpace"].Success
-                    || m.Groups["Comment"].Success) {
+                }
+                else if (m.Groups["WhiteSpace"].Success
+                  || m.Groups["Comment"].Success)
+                {
 
                     // Skip white space and comments.
 
-                } else if (m.Groups["Other"].Success) {
+                }
+                else if (m.Groups["Other"].Success)
+                {
 
                     // Found an illegal character.
                     result.AddLast(
@@ -157,7 +166,9 @@ namespace Falak {
                             row,
                             m.Index - columnStart + 1));
 
-                } else {
+                }
+                else
+                {
 
                     // Must be any of the other tokens.
                     result.AddLast(FindToken(m, row, columnStart));
@@ -173,9 +184,12 @@ namespace Falak {
             return result;
         }
 
-        Token FindToken(Match m, int row, int columnStart) {
-            foreach (var name in tokenMap.Keys) {
-                if (m.Groups[name].Success) {
+        Token FindToken(Match m, int row, int columnStart)
+        {
+            foreach (var name in tokenMap.Keys)
+            {
+                if (m.Groups[name].Success)
+                {
                     return new Token(m.Value,
                         tokenMap[name],
                         row,

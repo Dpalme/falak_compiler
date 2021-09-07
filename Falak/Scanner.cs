@@ -29,7 +29,7 @@ namespace Falak {
 
         static readonly Regex regex = new Regex(
             @"
-                (?<Comment>    (?:#.*)|(<#.*?#>)        )
+                (?<Comment>    (?:\#.*)|(<\#.*?\#>)     )
               | (?<SoftGroup>  [(].*?[)]                ) # NOT CATEGORIZED YET
               | (?<CodeGroup>  [{].*?[}]                ) # NOT CATEGORIZED YET
               | (?<Array>      \[.*?\]                  )

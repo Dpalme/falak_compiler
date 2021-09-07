@@ -67,12 +67,12 @@ namespace Falak {
 
               | (?<Bool>       (?:true\b)|(?:false\b)   )
               | (?<Int>        -?[1-9][0-9]{0-9}\b      )
-              | (?<Character>  '((\\(n|r|t|\\|'|""|u[a-fA-F0-9]{6}))|[a-zA-Z0-9])' )
-              | (?<String>     ""([^""\n\\]|\\([nrt\\'""]|u[0-9a-fA-F]{6}))*""    )
+              | (?<Character>  '((\\(n|r|t|\\|'|""|u[a-fA-F0-9]{6}))|[A-z0-9])' )
+              | (?<String>     ""([^""\n\\]|\\([nrt\\'""]|u[0-9a-fA-F]{6}))*""  )
               | (?<End>        ;\b                      )
               | (?<Print>      print\b                  )
               | (?<Then>       then\b                   )
-              | (?<Identifier> [a-zA-Z][a-Z_0-9]*       )     # Must go after all keywords
+              | (?<Identifier> [A-z][A-z_0-9]*          )     # Must go after all keywords
               | (?<Other>      .                        )     # Must be last: match any other character.
             ",
             RegexOptions.IgnorePatternWhitespace

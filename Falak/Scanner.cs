@@ -77,7 +77,7 @@ namespace Falak
               | (?<Print>      print\b                  )
               | (?<Then>       then\b                   )
               | (?<Identifier> [A-z][A-z_0-9]*          )     # Must go after all keywords
-              | (?<Other>      .                        )     # Must be last: match any other character.
+              | (?<Other>      .*                        )     # Must be last: match any other character.
             ",
             RegexOptions.IgnorePatternWhitespace
                 | RegexOptions.Compiled
@@ -153,20 +153,29 @@ namespace Falak
                     columnStart = m.Index + m.Length;
 
                 }
-                else if (m.Groups["WhiteSpace"].Success
-                  || m.Groups["Comment"].Success)
-                {
+                // else if (m.Groups["WhiteSpace"].Success
+                //   || m.Groups["Comment"].Success)
+                // {
 
-                    // Skip white space and comments.
+                //     // Skip white space and comments.
 
+                // }
+                else if (m.Groups["WhiteSpace"].Success){
+                    
                 }
+                else if (m.Groups["Comment"].Success){
+                    Regex rx = new Regex("\n");
+                    MatchCollection matches = rx.Matches(m.Value);
+                    row += matches.Count;
+                }
+                
                 else if (m.Groups["Other"].Success)
                 {
 
                     // Found an illegal character.
                     result.AddLast(
                         new Token(m.Value,
-                            TokenCategory.ILLEGAL_CHAR,
+                            TokenCategory.OTHER,
                             row,
                             m.Index - columnStart + 1));
 

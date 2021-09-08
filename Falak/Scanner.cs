@@ -31,7 +31,7 @@ namespace Falak
 
         static readonly Regex regex = new Regex(
             @"
-                (?<Comment>    (?:\#.*)|(<\#.*?\#>)     )
+                (?<Comment>    (?:\#.*)|(<\#(?:.|\n)*?\#>)     )
               | (?<SoftGroup>  [(].*?[)]                ) # NOT CATEGORIZED YET
               | (?<CodeGroup>  [{].*?[}]                ) # NOT CATEGORIZED YET
               | (?<Array>      \[.*?\]                  )
@@ -71,7 +71,7 @@ namespace Falak
               | (?<Int>        -?[1-9][0-9]{0-9}\b      )
               | (?<Character>  '((\\(n|r|t|\\|'|""|u[a-fA-F0-9]{6}))|[A-z0-9])' )
               | (?<String>     ""([^""\n\\]|\\([nrt\\'""]|u[0-9a-fA-F]{6}))*""  )
-              | (?<End>        ;\b                      )
+              | (?<End>        ;                        )
               | (?<Print>      print\b                  )
               | (?<Then>       then\b                   )
               | (?<Identifier> [A-z][A-z_0-9]*          )     # Must go after all keywords

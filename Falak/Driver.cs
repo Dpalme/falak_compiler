@@ -1,5 +1,5 @@
 /*
-  Buttercup compiler - Program driver.
+  Falak compiler - Program driver.
   Copyright (C) 2013-2021 Ariel Ortiz, ITESM CEM
 
   This program is free software: you can redistribute it and/or modify

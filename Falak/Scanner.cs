@@ -32,8 +32,10 @@ namespace Falak
         static readonly Regex regex = new Regex(
             @"
                 (?<Comment>    (?:\#.*)|(<\#(?:.|\n)*?\#>)     )
-              | (?<SoftGroup>  [(].*?[)]                ) # NOT CATEGORIZED YET
-              | (?<CodeGroup>  [{].*?[}]                ) # NOT CATEGORIZED YET
+              | (?<ParLeft>  [(]                ) # NOT CATEGORIZED YET
+              | (?<ParRight>  [)]                ) # NOT CATEGORIZED YET
+              | (?<CurlLeft>  [{]                ) # NOT CATEGORIZED YET
+              | (?<CurlRight>  [}]                ) # NOT CATEGORIZED YET
               | (?<Array>      \[.*?\]                  )
               | (?<Newline>    \n                       )
               | (?<WhiteSpace> \s                       ) # Must go after Newline.
@@ -85,8 +87,10 @@ namespace Falak
         static readonly IDictionary<string, TokenCategory> tokenMap =
             new Dictionary<string, TokenCategory>() {
                 {"Comment", TokenCategory.COMMENT},
-                {"SoftGroup", TokenCategory.SOFTGROUP},
-                {"CodeGroup", TokenCategory.CODEGROUP},
+                {"ParLeft", TokenCategory.PAR_LEFT},
+                {"ParRight", TokenCategory.PAR_RIGHT},
+                {"CurlLeft", TokenCategory.CURL_LEFT},
+                {"CurlRight", TokenCategory.CURL_RIGHT},
                 {"Array", TokenCategory.ARRAY},
                 {"Newline", TokenCategory.NEWLINE},
                 {"WhiteSpace", TokenCategory.WHITESPACE},

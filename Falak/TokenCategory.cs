@@ -53,8 +53,10 @@ namespace Falak
         NOT_EQUALS,
         OR,
         OTHER,
-        PARENTHESIS_OPEN,// SOFT GROUP? OR INDIVIDUAL CHAR?
-        PARENTHESIS_CLOSE,// SAME AS ABOVE
+        PAR_RIGHT,// SOFT GROUP? OR INDIVIDUAL CHAR?
+        PAR_LEFT,// SAME AS ABOVE
+        CURL_LEFT,// SAME AS ABOVE
+        CURL_RIGHT,// SAME AS ABOVE
         PLUS,
         PRINT,
         RETURN,

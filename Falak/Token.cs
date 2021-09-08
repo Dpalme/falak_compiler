@@ -14,6 +14,12 @@
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+  Modified by team 6
+  Javier Pascal Flores          A01375925
+  Diego Palmerin Bonada         A01747290
+  Hector Ivan Aguirre Arteaga   A01169628
+
 */
 
 namespace Falak {

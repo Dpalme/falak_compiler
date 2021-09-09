@@ -83,7 +83,7 @@ namespace Falak
               | (?<Print>      print\b                  )
               | (?<Then>       then\b                   )
               | (?<Identifier> [A-z][A-z_0-9]*          )     # Must go after all keywords
-              | (?<Other>      .*                        )     # Must be last: match any other character.
+              | (?<Other>      ,|\s|\n|\t               )     # Must be last: match any other character.
             ",
             RegexOptions.IgnorePatternWhitespace
                 | RegexOptions.Compiled

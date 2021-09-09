@@ -83,7 +83,8 @@ namespace Falak
               | (?<Print>      print\b                  )
               | (?<Then>       then\b                   )
               | (?<Identifier> [A-z][A-z_0-9]*          )     # Must go after all keywords
-              | (?<Other>      ,|\s|\n|\t               )     # Must be last: match any other character.
+              | (?<Comma>      ,               )     # Must be last: match any other character.
+              | (?<Other>      .*               )     # Must be last: match any other character.
             ",
             RegexOptions.IgnorePatternWhitespace
                 | RegexOptions.Compiled
@@ -133,6 +134,7 @@ namespace Falak
                 {"End", TokenCategory.END},
                 {"Print", TokenCategory.PRINT},
                 {"Then", TokenCategory.THEN},
+                {"Comma", TokenCategory.COMMA},
                 {"Identifier", TokenCategory.IDENTIFIER},
                 {"Other", TokenCategory.OTHER}
             };

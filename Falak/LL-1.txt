@@ -1,0 +1,47 @@
+===========================
+    Falak LL(1) Grammar    
+===========================
+
+
+‹program›                       ::=    ‹def-list›* ‹stmt-list›* "EOF"
+
+    ‹def-list›                  ::=    ‹def›+
+        ‹def›                   ::=    ‹var-def› | ‹fun-def›
+            ‹fun-def›           ::=    ‹id› "(" ‹id-list›? ")" "{" ‹var-def-list›? ‹stmt-list›? "}"
+            ‹var-def-list›      ::=    ‹var-def›+
+                ‹var-def›       ::=    "var" ‹id-list› ";"
+                    ‹id-list›   ::=    ‹id› ("," ‹id›)*
+
+    ‹stmt-list›                 ::=    ‹stmt›+
+        ‹stmt›                  ::=    ‹stmt-assign› | ‹stmt-incr› | ‹stmt-decr› | ‹stmt-fun-call› | ‹stmt-if› | ‹stmt-while› | ‹stmt-do-while› | ‹stmt-break› | ‹stmt-return› | ‹stmt-empty›
+            ‹stmt-assign›       ::=    ‹id› "=" ‹expr› ";"
+            ‹stmt-incr›         ::=    "inc" ‹id› ";"
+            ‹stmt-decr›         ::=    "dec" ‹id› ";"
+            ‹stmt-fun-call›     ::=    ‹id› "(" ‹expr-list› ")" ";"
+            ‹stmt-if›           ::=    "if" "(" ‹expr› ")" "{" ‹stmt-list› "}" ‹else-if-list›* ‹else›?
+            ‹else-if-list›      ::=    ("elseif" "(" ‹expr› ")" "{" ‹stmt-list› "}")*
+            ‹else›              ::=    "else" "{" ‹stmt-list› "}"
+            ‹stmt-while›        ::=    "while" "(" ‹expr› ")" "{" ‹stmt-list› "}"
+            ‹stmt-do-while›     ::=    "do" "{" ‹stmt-list› "}" "while" "(" ‹expr› ")" ";"
+            ‹stmt-break›        ::=    "break" ";"
+            ‹stmt-return›       ::=    "return" ‹expr› ";"
+            ‹stmt-empty›        ::=    ";"
+
+                ‹expr-list›     ::= ‹expr› ("," ‹expr›)*
+                    ‹expr›                          ::= ‹expr-or›
+                        ‹expr-or›                   ::= ‹expr-and› (‹op-or› ‹expr-and›)*
+                            ‹op-or›                 ::= "||" | "^"
+                            ‹expr-and›              ::= ‹expr-comp› ("&&" ‹expr-comp›)*
+                                ‹expr-comp›         ::= ‹expr-rel› (‹op-comp› ‹expr-rel›)*
+                                    ‹op-comp›               ::= "==" | "!="
+                                    ‹expr-rel›              ::= ‹expr-add› (‹op-rel› ‹expr-add›)*
+                                        ‹op-rel›            ::= "<" | "<=" | ">" | ">="
+                                        ‹expr-add›          ::= ‹expr-mul› (‹op-add› ‹expr-mul›)*
+                                            ‹op-add›        ::= "+" | "−"
+                                            ‹expr-mul›      ::= ‹expr-unary› (‹op-mul› ‹expr-unary›)*
+                                                ‹op-mul›                ::= "*" | "/" | "%"
+                                                ‹expr-unary›            ::= ‹expr-primary› (‹op-unary› ‹expr-primary›)*
+                                                    ‹op-unary›          ::= "+" | "−" | "!"
+                                                    ‹expr-primary›      ::= ‹id› | ‹fun-call› | ‹array› | ‹lit› | "(" ‹expr› ")"
+                                                        ‹array›         ::= "[" ‹expr-list› "]"
+                                                        ‹lit›           ::= ‹lit-bool› | ‹lit-int› | ‹lit-char› | ‹lit-str›

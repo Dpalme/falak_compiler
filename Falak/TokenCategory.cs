@@ -34,7 +34,6 @@ namespace Falak
         BIT_OR,
         BREAK,
         COMMENT,
-        CODE_GROUP,
         CHARACTER,
         DEC,
         DO,
@@ -55,14 +54,15 @@ namespace Falak
         MORE,
         MORE_EQUALS,
         NEG,
+        NOT,
         NEW_LINE,
         NOT_EQUALS,
         OR,
         OTHER,
-        PAR_RIGHT,// SOFT GROUP? OR INDIVIDUAL CHAR?
-        PAR_LEFT,// SAME AS ABOVE
-        CURL_LEFT,// SAME AS ABOVE
-        CURL_RIGHT,// SAME AS ABOVE
+        PAR_RIGHT,
+        PAR_LEFT,
+        CURL_LEFT,
+        CURL_RIGHT,
         PLUS,
         PRINT,
         RETURN,
@@ -71,17 +71,7 @@ namespace Falak
         TRUE,
         VAR,
         WHILE,
-        ILLEGAL_CHAR,
-        SOFTGROUP,
-        CODEGROUP,
-        NEWLINE,
         WHITESPACE,
-        BITOR,
-        LESSEQUALS,
-        MOREEQUALS,
-        NOTEQUALS,
-        INTLITERAL,
         COMMA,
-        ELSEIF
     }
 }

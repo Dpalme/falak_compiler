@@ -35,13 +35,15 @@ namespace Falak
 
         readonly string input;
 
+
+/* MISSING SUBSTRACTION */
         static readonly Regex regex = new Regex(
             @"
                 (?<Comment>    (?:\#.*)|(<\#(?:.|\n)*?\#>)     )
-              | (?<ParLeft>  [(]                ) # NOT CATEGORIZED YET
-              | (?<ParRight>  [)]                ) # NOT CATEGORIZED YET
-              | (?<CurlLeft>  [{]                ) # NOT CATEGORIZED YET
-              | (?<CurlRight>  [}]                ) # NOT CATEGORIZED YET
+              | (?<ParLeft>  [(]                        ) 
+              | (?<ParRight>  [)]                       ) 
+              | (?<CurlLeft>  [{]                       ) 
+              | (?<CurlRight>  [}]                      ) 
               | (?<Array>      \[.*?\]                  )
               | (?<Newline>    \n                       )
               | (?<WhiteSpace> \s                       ) # Must go after Newline.
@@ -53,7 +55,8 @@ namespace Falak
               | (?<Less>       [<]                      )
               | (?<More>       [>]                      )
               | (?<Plus>       [+]                      )
-              | (?<Neg>        [-!]                     )
+              | (?<Not>        [!]                      )
+              | (?<Neg>        [-]                      )
               | (?<Mul>        [*]|[/]|[%]              )
               | (?<Equals>     [=][=]                   )
               | (?<NotEquals>  [!][=]                   )
@@ -99,27 +102,28 @@ namespace Falak
                 {"CurlLeft", TokenCategory.CURL_LEFT},
                 {"CurlRight", TokenCategory.CURL_RIGHT},
                 {"Array", TokenCategory.ARRAY},
-                {"Newline", TokenCategory.NEWLINE},
+                {"Newline", TokenCategory.NEW_LINE},
                 {"WhiteSpace", TokenCategory.WHITESPACE},
                 {"And", TokenCategory.AND},
                 {"Or", TokenCategory.OR},
-                {"BitOr", TokenCategory.BITOR},
-                {"LessEquals", TokenCategory.LESSEQUALS},
-                {"MoreEquals", TokenCategory.MOREEQUALS},
+                {"BitOr", TokenCategory.BIT_OR},
+                {"LessEquals", TokenCategory.LESS_EQUALS},
+                {"MoreEquals", TokenCategory.MORE_EQUALS},
                 {"Less", TokenCategory.LESS},
                 {"More", TokenCategory.MORE},
                 {"Plus", TokenCategory.PLUS},
                 {"Neg", TokenCategory.NEG},
+                {"Not", TokenCategory.NOT},
                 {"Mul", TokenCategory.MUL},
                 {"Equals", TokenCategory.EQUALS},
-                {"NotEquals", TokenCategory.NOTEQUALS},
+                {"NotEquals", TokenCategory.NOT_EQUALS},
                 {"Assign", TokenCategory.ASSIGN},
-                {"IntLiteral", TokenCategory.INTLITERAL},
+                {"IntLiteral", TokenCategory.INT_LITERAL},
                 {"Break", TokenCategory.BREAK},
                 {"Dec", TokenCategory.DEC},
                 {"Do", TokenCategory.DO},
                 {"Else", TokenCategory.ELSE},
-                {"ElseIf", TokenCategory.ELSEIF},
+                {"ElseIf", TokenCategory.ELSE_IF},
                 {"False", TokenCategory.FALSE},
                 {"If", TokenCategory.IF},
                 {"Inc", TokenCategory.INC},

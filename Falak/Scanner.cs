@@ -90,7 +90,7 @@ namespace Falak
               | (?<Then>       then\b                   )
               | (?<Identifier> [A-z][A-z_0-9]*          )     # Must go after all keywords
               | (?<Comma>      ,                        )     # Must be last: match any other character.
-              | (?<Other>      .*                       )     # Must be last: match any other character.
+              | (?<Other>      .+                       )     # Must be last: match any other character.
             ",
             RegexOptions.IgnorePatternWhitespace
                 | RegexOptions.Compiled
@@ -183,7 +183,6 @@ namespace Falak
                 
                 else if (m.Groups["Other"].Success)
                 {
-
                     // Found an illegal character.
                     result.AddLast(
                         new Token(m.Value,

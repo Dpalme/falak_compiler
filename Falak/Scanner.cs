@@ -73,11 +73,11 @@ namespace Falak
               | (?<Do>         do\b                     )
               | (?<Else>       else\b                   )
               | (?<ElseIf>     elseif\b                 )
-              | (?<False>      false                    )
+              | (?<False>      false\b                    )
               | (?<If>         if\b                     )
               | (?<Inc>        inc\b                    )
               | (?<Return>     return\b                 )
-              | (?<True>       true                     )
+              | (?<True>       true\b                     )
               | (?<Var>        var\b                    )
               | (?<While>      while\b                  )
 

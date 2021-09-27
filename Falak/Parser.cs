@@ -24,6 +24,148 @@
 */
 
 /*
+Falak EBNF Grammar:
+<program>               -> <def-list>
+<def-list>              -> <def>*
+<def>                   -> <var-def>|<fun-def>
+<var-def>               -> "var" <var-list> ";"
+<var-list>              -> <id-list>
+<id-list>               -> <id> <id-list-cont>
+<id-list-cont>          -> ("," <id>)*
+<fun-def>               -> <id> "(" <param-list> ")" "{" <var-def-list> <stmt-list>  "}"
+<param-list>            -> <id-list>*
+<var-def-list>          -> <var-def>*
+<stmt-list>             -> <stmt>*
+<stmt>                  -> <stmt-assign>|<stmt-inc>|
+                            <stmt-dec>|<stmt-fun-call>|
+                            <stmt-if>|<stmt-while>|
+                            <stmt-do-while>|<stmt-break>|
+                            <stmt-return>|<stmt-empty>
+<stmt-assign>           -> <id> "=" <expr> ";"
+<stmt-incr>             -> "inc" <id> ";"
+<stmt-decr>             -> "dec" <id> ";"
+<stmt-fun-call>         -> <fun-call> ";"
+<fun-call>              -> <id> "(" <expr-list> ")"
+<expr-list>             -> (<expr> <expr-list-cont>)?
+<expr-list-cont>        -> ("," <expr>)*
+<stmt-if>               -> "if" "(" <expr> ")" "{" <stmt-list> "}" <else-if-list> <else>
+<else-if-list>          -> ("elseif" "(" <expr> ")" "{" <stmt-list> "}")*
+<else>                  -> ("else" "{" <stmt-list> "}")?
+<stmt-while>            -> "while" "(" <expr> ")" "{" <stmt-list> "}"
+<stmt-do-while>         -> "do" "{" <stmt-list> "}" "while" "(" <expr> ")" ";"
+<stmt-break>            -> "break" ";"
+<stmt-return>           -> "return" <expr> ";"
+<stmt-empty>            -> ";"
+<expr>                  -> <expr-or>
+<expr-or>               -> 
+
+
+
+*/
+
+/*
+<program>               -> <def-list> EOF
+
+<def-list>              -> <def>*
+
+<def>                   -> <var-def>|<fun-def>
+
+<var-def>               -> "var" <var-list> ";"
+
+<var-list>              -> <id-list>
+
+<id-list>               -> <id> <id-list-cont>
+
+<id-list-cont>          -> ("," <id>)*
+
+<fun-def>               -> <id> "(" <param-list> ")" "{" <var-def-list> <stmt-list> "}"
+
+<param-list>            -> <id-list>?
+
+<var-def-list>          -> <var-def>*
+
+<stmt-list>             -> <stmt>*
+
+<stmt>                  -> <stmt-assign>|<stmt-inc>|
+
+					        <stmt-dec>|<stmt-fun-call>|
+
+					        <stmt-if>|<stmt-while>|
+
+					        <stmt-do-while>|<stmt-break>|
+
+					        <stmt-return>|<stmt-empty>
+
+<stmt-assign>           -> <id> "=" <expr> ";"
+
+<stmt-incr>             -> "inc" <id> ";"
+
+<stmt-decr>             -> "dec" <id> ";"
+
+<stmt-fun-call>         -> <fun-call> ";"
+
+<fun-call>              -> <id> "(" <expr-list> ")"
+
+<expr-list>             -> (<expr> <expr-list-cont>)?
+
+<expr-list-cont>        -> ("," <expr>)*
+
+<stmt-if>               -> "if" "(" <expr> ")" "{" <stmt-list> "}" <else-if-list> <else>
+
+<else-if-list>          -> ("elseif" "(" <expr> ")" "{" <stmt-list> "}")*
+
+<else>                  -> ("else" "{" <stmt-list> "}")?
+
+<stmt-while>            -> "while" "(" <expr> ")" "{" <stmt-list> "}"
+
+<stmt-do-while>         -> "do" "{" <stmt-list> "}" "while" "(" <expr> ")" ";"
+
+<stmt-break>            -> "break" ";"
+
+<stmt-return>           -> "return" <expr> ";"
+
+<stmt-empty>            -> ";"
+
+<expr>                  -> <expr-or>
+
+<expr-or>               -><expr-and> (<op-or> <expr-and>)*
+	
+<op-or>                 -> "||" | "^"
+	
+<expr-and>              -> <expr-comp> (&& <expr-comp>)*
+	
+<expr-comp>             -> <expr-rel> (<op-comp> <expr-rel>)*
+	
+<op-comp>               -> "=="|"!="
+	
+<expr-rel>	            -> <expr-add> (<op-rel> <exrp-add>)*
+	
+<op-rel>                -> "<" | "<="|">"|">="
+	
+<expr-add>              -> <expr-mul> (<op-add> <expr-mul>)*
+
+<op-add>                -> "+"|"-"
+	
+<expr-mul>              -> <expr-unary> (<op-mul> <expr-unary>)*
+	
+<op-mul>                -> "*"|"/"|"%"
+	
+<expr-unary>            -> <op-unary>* <expr-primary>
+	
+<op-unary>              -> "+"|"-"|"!"
+	
+<expr-primary>          -> <id>|<fun-call>|<array>|<lit>| "(" <expr> ")"
+	
+<array>                 -> "[" <expr-list> "]"
+
+<lit>                   -> <lit-bool>|<lit-int>|<lit-char>|<lit-str>
+
+	
+
+*/
+
+
+/*
  * Falak LL(1) Grammar:
 
 Program             ::= ‹def-list›* EOF                                                 NOT SURE
@@ -112,7 +254,8 @@ namespace Falak
                 TokenCategory.LESS_EQUALS
             };
 
-        static readonly ISet<TokenCategory> firstOfExprUnary = new HashSet<TokenCategory>() {
+        static readonly ISet<TokenCategory> firstOfExprUnary =
+            new HashSet<TokenCategory>() {
             TokenCategory.IDENTIFIER,
                 TokenCategory.INT_LITERAL,
                 TokenCategory.CHARACTER,
@@ -235,19 +378,36 @@ namespace Falak
         public void VarDef()
         {
             Expect(TokenCategory.VAR);
-            IdList();
+            VarList();
+            Expect(TokenCategory.END);
         }
 
+        public void VarList()
+        {
+            IdList();
+        }
         public void IdList()
         {
             Expect(TokenCategory.IDENTIFIER);
+            // while (CurrentToken == TokenCategory.COMMA)
+            // {
+            //     Expect(TokenCategory.COMMA);
+            //     Expect(TokenCategory.IDENTIFIER);
+            // }
+            // Expect(TokenCategory.END);
+            IdListCont();
+        }
+
+
+        public void IdListCont()
+        {
             while (CurrentToken == TokenCategory.COMMA)
             {
                 Expect(TokenCategory.COMMA);
                 Expect(TokenCategory.IDENTIFIER);
             }
-            Expect(TokenCategory.END);
         }
+
 
         public void FunDef()
         {
@@ -423,7 +583,7 @@ namespace Falak
         public void StatementWhile()
         {
             Expect(TokenCategory.WHILE);
-            Expect(TokenCategory.ELSE_IF);
+            // Expect(TokenCategory.ELSE_IF);
             Expect(TokenCategory.PAR_LEFT);
             Expression();
             Expect(TokenCategory.PAR_RIGHT);
@@ -517,7 +677,7 @@ namespace Falak
         public void ExprComp()
         {
             ExprRel();
-            while (firstOfRelationalOperator.Contains(CurrentToken))
+            while (firstOfComparisonsOperator.Contains(CurrentToken))
             {
                 OpComp();
                 ExprRel();
@@ -543,9 +703,9 @@ namespace Falak
         public void ExprRel()
         {
             ExprAdd();
-            while (firstOfComparisonsOperator.Contains(CurrentToken))
+            while (firstOfRelationalOperator.Contains(CurrentToken))
             {
-                OpComp();
+                OpRel();
                 ExprAdd();
             }
         }

@@ -21,48 +21,6 @@
   Diego Palmerin Bonada         A01747290
   Hector Ivan Aguirre Arteaga   A01169628
 
-*/
-
-/*
-Falak EBNF Grammar:
-<program>               -> <def-list>
-<def-list>              -> <def>*
-<def>                   -> <var-def>|<fun-def>
-<var-def>               -> "var" <var-list> ";"
-<var-list>              -> <id-list>
-<id-list>               -> <id> <id-list-cont>
-<id-list-cont>          -> ("," <id>)*
-<fun-def>               -> <id> "(" <param-list> ")" "{" <var-def-list> <stmt-list>  "}"
-<param-list>            -> <id-list>*
-<var-def-list>          -> <var-def>*
-<stmt-list>             -> <stmt>*
-<stmt>                  -> <stmt-assign>|<stmt-inc>|
-                            <stmt-dec>|<stmt-fun-call>|
-                            <stmt-if>|<stmt-while>|
-                            <stmt-do-while>|<stmt-break>|
-                            <stmt-return>|<stmt-empty>
-<stmt-assign>           -> <id> "=" <expr> ";"
-<stmt-incr>             -> "inc" <id> ";"
-<stmt-decr>             -> "dec" <id> ";"
-<stmt-fun-call>         -> <fun-call> ";"
-<fun-call>              -> <id> "(" <expr-list> ")"
-<expr-list>             -> (<expr> <expr-list-cont>)?
-<expr-list-cont>        -> ("," <expr>)*
-<stmt-if>               -> "if" "(" <expr> ")" "{" <stmt-list> "}" <else-if-list> <else>
-<else-if-list>          -> ("elseif" "(" <expr> ")" "{" <stmt-list> "}")*
-<else>                  -> ("else" "{" <stmt-list> "}")?
-<stmt-while>            -> "while" "(" <expr> ")" "{" <stmt-list> "}"
-<stmt-do-while>         -> "do" "{" <stmt-list> "}" "while" "(" <expr> ")" ";"
-<stmt-break>            -> "break" ";"
-<stmt-return>           -> "return" <expr> ";"
-<stmt-empty>            -> ";"
-<expr>                  -> <expr-or>
-<expr-or>               -> 
-
-
-
-*/
-
 /*
 <program>               -> <def-list> EOF
 
@@ -871,6 +829,12 @@ namespace Falak
             {
                 case TokenCategory.BOOL:
                     Expect(TokenCategory.BOOL);
+                    break;
+                case TokenCategory.FALSE:
+                    Expect(TokenCategory.FALSE);
+                    break;
+                case TokenCategory.TRUE:
+                    Expect(TokenCategory.TRUE);
                     break;
                 case TokenCategory.INT_LITERAL:
                     Expect(TokenCategory.INT_LITERAL);

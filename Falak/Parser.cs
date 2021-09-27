@@ -214,7 +214,7 @@ namespace Falak
 
         static readonly ISet<TokenCategory> firstOfExprUnary =
             new HashSet<TokenCategory>() {
-            TokenCategory.IDENTIFIER,
+                TokenCategory.IDENTIFIER,
                 TokenCategory.INT_LITERAL,
                 TokenCategory.CHARACTER,
                 TokenCategory.STRING,
@@ -222,6 +222,7 @@ namespace Falak
                 TokenCategory.FALSE,
                 TokenCategory.PAR_LEFT,
                 TokenCategory.CURL_LEFT,
+                TokenCategory.ARRAY_LEFT,
                 TokenCategory.PLUS,
                 TokenCategory.NEG,
                 TokenCategory.NOT
@@ -258,7 +259,8 @@ namespace Falak
                 TokenCategory.TRUE,
                 TokenCategory.FALSE,
                 TokenCategory.PAR_LEFT,
-                TokenCategory.CURL_LEFT
+                TokenCategory.CURL_LEFT,
+                TokenCategory.ARRAY_LEFT,
             };
 
         static readonly ISet<TokenCategory> firstOfLiteral =
@@ -768,7 +770,7 @@ namespace Falak
         public void OpUnary()
         {
             switch (CurrentToken)
-            {
+            {   
                 case TokenCategory.PLUS:
                     Expect(TokenCategory.PLUS);
                     break;

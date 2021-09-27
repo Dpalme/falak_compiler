@@ -517,7 +517,7 @@ namespace Falak
 
         public void ElseIfList()
         {
-            if (CurrentToken == TokenCategory.ELSE_IF)
+            while (CurrentToken == TokenCategory.ELSE_IF)
             {
                 Expect(TokenCategory.ELSE_IF);
                 Expect(TokenCategory.PAR_LEFT);

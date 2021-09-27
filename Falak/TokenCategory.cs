@@ -28,7 +28,7 @@ namespace Falak
     enum TokenCategory
     {
         AND,
-        ARRAY,
+        ARRAY_LEFT,
         ASSIGN,
         BOOL,
         BIT_OR,
@@ -73,8 +73,8 @@ namespace Falak
         WHILE,
         WHITESPACE,
         COMMA,
-        PARENTHESIS_OPEN,
-        CHAR_LITERAL,
-        STRING_LITERAL
+        DIV,
+        MOD,
+        ARRAY_RIGHT
     }
 }

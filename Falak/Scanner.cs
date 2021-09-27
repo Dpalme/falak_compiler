@@ -39,14 +39,15 @@ namespace Falak
 /* MISSING SUBSTRACTION */
         static readonly Regex regex = new Regex(
             @"
-                (?<Comment>    (?:\#.*)|(<\#(?:.|\n)*?\#>)     )
-              | (?<ParLeft>  [(]                        ) 
-              | (?<ParRight>  [)]                       ) 
-              | (?<CurlLeft>  [{]                       ) 
-              | (?<CurlRight>  [}]                      ) 
-              | (?<Array>      \[.*?\]                  )
+                (?<Comment>    (?:\#.*)|(?:\<\#(?:.|\n)*?\#>)  )
+              | (?<ParLeft>    [(]                      ) 
+              | (?<ParRight>   [)]                      ) 
+              | (?<CurlLeft>   [{]                      ) 
+              | (?<CurlRight>  [}]                      )
+              | (?<ArrayLeft>  \[                       )
+              | (?<ArrayRight> \]                       )
               | (?<Newline>    \n                       )
-              | (?<WhiteSpace> \s                       ) # Must go after Newline.
+              | (?<WhiteSpace> \s                       )
               | (?<And>        [&][&]                   )
               | (?<Or>         [|][|]                   )
               | (?<BitOr>      [^]                      )
@@ -57,7 +58,9 @@ namespace Falak
               | (?<Plus>       [+]                      )
               | (?<Not>        [!]                      )
               | (?<Neg>        [-]                      )
-              | (?<Mul>        [*]|[/]|[%]              )
+              | (?<Mul>        [*]                      )
+              | (?<Div>        [/]                      )
+              | (?<Mod>        [%]                      )
               | (?<Equals>     [=][=]                   )
               | (?<NotEquals>  [!][=]                   )
               | (?<Assign>     [=]                      )
@@ -86,8 +89,8 @@ namespace Falak
               | (?<Print>      print\b                  )
               | (?<Then>       then\b                   )
               | (?<Identifier> [A-z][A-z_0-9]*          )     # Must go after all keywords
-              | (?<Comma>      ,               )     # Must be last: match any other character.
-              | (?<Other>      .*               )     # Must be last: match any other character.
+              | (?<Comma>      ,                        )     # Must be last: match any other character.
+              | (?<Other>      .*                       )     # Must be last: match any other character.
             ",
             RegexOptions.IgnorePatternWhitespace
                 | RegexOptions.Compiled
@@ -101,7 +104,8 @@ namespace Falak
                 {"ParRight", TokenCategory.PAR_RIGHT},
                 {"CurlLeft", TokenCategory.CURL_LEFT},
                 {"CurlRight", TokenCategory.CURL_RIGHT},
-                {"Array", TokenCategory.ARRAY},
+                {"ArrayLeft", TokenCategory.ARRAY_LEFT},
+                {"ArrayRight", TokenCategory.ARRAY_RIGHT},
                 {"Newline", TokenCategory.NEW_LINE},
                 {"WhiteSpace", TokenCategory.WHITESPACE},
                 {"And", TokenCategory.AND},
@@ -140,7 +144,9 @@ namespace Falak
                 {"Then", TokenCategory.THEN},
                 {"Comma", TokenCategory.COMMA},
                 {"Identifier", TokenCategory.IDENTIFIER},
-                {"Other", TokenCategory.OTHER}
+                {"Other", TokenCategory.OTHER},
+                {"Div", TokenCategory.DIV},
+                {"Mod", TokenCategory.MOD}
             };
 
         public Scanner(string input)

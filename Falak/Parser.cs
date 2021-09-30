@@ -32,9 +32,7 @@
 
 <var-list>              -> <id-list>
 
-<id-list>               -> <id> <id-list-cont>
-
-<id-list-cont>          -> ("," <id>)*
+<id-list>               -> <id> ("," <id>)*
 
 <fun-def>               -> <id> "(" <param-list> ")" "{" <var-def-list> <stmt-list> "}"
 
@@ -64,9 +62,7 @@
 
 <fun-call>              -> <id> "(" <expr-list> ")"
 
-<expr-list>             -> (<expr> <expr-list-cont>)?
-
-<expr-list-cont>        -> ("," <expr>)*
+<expr-list>             -> <expr>? ("," <expr>)*
 
 <stmt-if>               -> "if" "(" <expr> ")" "{" <stmt-list> "}" <else-if-list> <else>
 
@@ -108,7 +104,7 @@
 	
 <op-mul>                -> "*"|"/"|"%"
 	
-<expr-unary>            -> <op-unary>* <expr-primary>
+<expr-unary>            -> <op-unary> <expr-unary> | <expr-primary>
 	
 <op-unary>              -> "+"|"-"|"!"
 	
@@ -118,59 +114,8 @@
 
 <lit>                   -> <lit-bool>|<lit-int>|<lit-char>|<lit-str>
 
-	
-
 */
 
-
-/*
- * Falak LL(1) Grammar:
-
-Program             ::= ‹def-list›* EOF                                                 NOT SURE
-‹def-list›          ::= ‹def›*                                                          CHANGE HAPPENED HERE
-‹def›               ::= ‹var-def› | ‹fun-def›
-‹var-def›           ::= "var" ‹id-list› ";"                                             NOT SURE IF VAR-LIST IS NECESSARY
-‹id-list›           ::= ‹id› ("," ‹id›)*                                                NOT SURE IF ID-LIST-CONT IS NECESSARY
-‹fun-def›           ::= ‹id› "(" ‹param-list› ")" "{" ‹var-def-list› ‹stmt-list› "}"    DECOMPOSED
-‹param-list›        ::= ‹id-list›?                                                      DECOMPOSED
-‹var-def-list›      ::= ‹var-def›*                                                      CHANGE HAPPENED HERE
-‹stmt-list›         ::= ‹stmt›*                                                         CHANGE HAPPENED HERE
-‹stmt›              ::= ‹stmt-assign› | ‹stmt-incr› | ‹stmt-decr›  | 
-                        ‹stmt-fun-call› | ‹stmt-if› | ‹stmt-while› | 
-                        ‹stmt-do-while› | ‹stmt-break› | ‹stmt-return› | ‹stmt-empty›
-‹stmt-assign›       ::= ‹id› "=" ‹expr› ";"
-‹stmt-fun-call›     ::= ‹fun-call›
-‹fun-call›          ::= ‹id› "(" ‹expr-list› ")"                                        DECOMPOSED
-‹stmt-incr›         ::= "inc" ‹id› ";"
-‹stmt-decr›         ::= "dec" ‹id› ";"
-‹expr-list›         ::= ‹expr› ("," ‹expr›)*                                            NOT SURE
-‹stmt-if›           ::= "if" "(" ‹expr› ")" "{" ‹stmt-list› "}" ‹else-if-list› ‹else›   CHANGE HAPPENED HERE
-‹else-if-list›      ::= ("elseif" "(" ‹expr› ")" "{" ‹stmt-list› "}")*
-‹else›              ::= ("else" "{" ‹stmt-list› "}")?                                   CHANGE HAPPENED HERE
-‹stmt-while›        ::= "while" "(" ‹expr› ")" "{" ‹stmt-list› "}"
-‹stmt-do-while›     ::= "do" "{" ‹stmt-list› "}" "while" "(" ‹expr› ")" ";"
-‹stmt-break›        ::= "break" ";"
-‹stmt-return›       ::= "return" ‹expr› ";"
-‹stmt-empty›        ::= ";"
-‹expr›              ::= ‹expr-or›
-‹expr-or›           ::= ‹expr-and› (‹op-or› ‹expr-and›)*
-‹op-or›             ::= "||" | "^"
-‹expr-and›          ::= ‹expr-comp› ("&&" ‹expr-comp›)*
-‹expr-comp›         ::= ‹expr-rel› (‹op-comp› ‹expr-rel›)*
-‹op-comp›           ::= "==" | "!="
-‹expr-rel›          ::= ‹expr-add› (‹op-rel› ‹expr-add›)*
-‹op-rel›            ::= "<" | "<=" | ">" | ">="
-‹expr-add›          ::= ‹expr-mul› (‹op-add› ‹expr-mul›)*
-‹op-add›            ::= "+" | "−"
-‹expr-mul›          ::= ‹expr-unary›  (‹op-mul› ‹expr-unary›)*             
-‹op-mul›            ::= "*" | "/" | "%"
-‹expr-unary›        ::= (‹op-unary› ‹expr-primary›)*                             CHANGE HAPPENED HERE
-‹op-unary›          ::= "+" | "−" | "!"
-‹expr-primary›      ::= ‹id› | ‹fun-call› | ‹array› | ‹lit› | "(" ‹expr› ")"
-‹array›             ::= "[" ‹expr-list› "]"
-‹lit›               ::= ‹lit-bool› | ‹lit-int› | ‹lit-char› | ‹lit-str›
-
- */
 
 using System;
 using System.Collections.Generic;
@@ -288,7 +233,7 @@ namespace Falak
 
         public Token Expect(TokenCategory category)
         {
-            Console.WriteLine("Expecting " + category);
+            // Console.WriteLine("Expecting " + category);
             if (CurrentToken == category)
             {
                 Token current = tokenStream.Current;
@@ -349,18 +294,6 @@ namespace Falak
         public void IdList()
         {
             Expect(TokenCategory.IDENTIFIER);
-            // while (CurrentToken == TokenCategory.COMMA)
-            // {
-            //     Expect(TokenCategory.COMMA);
-            //     Expect(TokenCategory.IDENTIFIER);
-            // }
-            // Expect(TokenCategory.END);
-            IdListCont();
-        }
-
-
-        public void IdListCont()
-        {
             while (CurrentToken == TokenCategory.COMMA)
             {
                 Expect(TokenCategory.COMMA);
@@ -585,7 +518,12 @@ namespace Falak
 
         public void ExprList()
         {
-            Expression();
+            try {
+                Expression();
+            }
+            catch (SyntaxError) {
+                return;
+            }
             while (TokenCategory.COMMA == CurrentToken)
             {
                 Expect(TokenCategory.COMMA);
@@ -749,28 +687,26 @@ namespace Falak
 
         public void ExprUnary()
         {
-            while (firstOfExprUnary.Contains(CurrentToken))
+            if (firstOfUnaryOperator.Contains(CurrentToken))
             {
-                if (firstOfPrimaryExpression.Contains(CurrentToken))
-                {
-                    ExprPrimary();
-                }
-                else if (firstOfUnaryOperator.Contains(CurrentToken))
-                {
-                    OpUnary();
-                }
-                else
-                {
-                    throw new SyntaxError(firstOfExprUnary,
-                                              tokenStream.Current);
-                }
+                OpUnary();
+                ExprUnary();
+            }
+            else if (firstOfPrimaryExpression.Contains(CurrentToken))
+            {
+                ExprPrimary();
+            }
+            else
+            {
+                throw new SyntaxError(firstOfExprUnary,
+                                          tokenStream.Current);
             }
         }
 
         public void OpUnary()
         {
             switch (CurrentToken)
-            {   
+            {
                 case TokenCategory.PLUS:
                     Expect(TokenCategory.PLUS);
                     break;

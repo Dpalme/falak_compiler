@@ -79,11 +79,13 @@ namespace Falak {
 
                 Console.WriteLine(
                     $"===== Tokens from: \"{inputPath}\" =====");
+                /*
                 var count = 1;
                 foreach (var tok in new Scanner(input).Scan()) {
                     Console.WriteLine($"[{count++}] {tok}");
-                }
+                }*/
 
+                Console.WriteLine("Lexical Analysis OK.");
                 Console.WriteLine("");
                 Console.WriteLine(
                     $"===== Syntax Analysis from: \"{inputPath}\" =====");

@@ -26,9 +26,11 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace Falak {
+namespace Falak
+{
 
-    public class Driver {
+    public class Driver
+    {
 
         const string VERSION = "0.2";
 
@@ -39,7 +41,8 @@ namespace Falak {
         };
 
         //-----------------------------------------------------------
-        void PrintAppHeader() {
+        void PrintAppHeader()
+        {
             Console.WriteLine("Falak compiler, version " + VERSION);
             Console.WriteLine(
                 "Copyright \u00A9 2013-2021 by A. Ortiz, ITESM CEM. modified"
@@ -52,56 +55,66 @@ namespace Falak {
         }
 
         //-----------------------------------------------------------
-        void PrintReleaseIncludes() {
+        void PrintReleaseIncludes()
+        {
             Console.WriteLine("Included in this release:");
-            foreach (var phase in ReleaseIncludes) {
+            foreach (var phase in ReleaseIncludes)
+            {
                 Console.WriteLine("   * " + phase);
             }
         }
 
         //-----------------------------------------------------------
-        void Run(string[] args) {
+        void Run(string[] args)
+        {
 
             PrintAppHeader();
             Console.WriteLine();
             PrintReleaseIncludes();
             Console.WriteLine();
 
-            if (args.Length != 1) {
+            if (args.Length != 1)
+            {
                 Console.Error.WriteLine(
                     "Please specify the name of the input file.");
                 Environment.Exit(1);
             }
 
-            try {
+            try
+            {
                 var inputPath = args[0];
                 var input = File.ReadAllText(inputPath);
 
+                /*
                 Console.WriteLine(
                     $"===== Tokens from: \"{inputPath}\" =====");
-                /*
                 var count = 1;
                 /*foreach (var tok in new Scanner(input).Scan()) {
                     Console.WriteLine($"[{count++}] {tok}");
                 }*/
 
                 Console.WriteLine("Lexical Analysis OK.");
+                /*
                 Console.WriteLine("");
                 Console.WriteLine(
                     $"===== Syntax Analysis from: \"{inputPath}\" =====");
+                */
                 var parser = new Parser(
                     new Scanner(input).Scan().GetEnumerator());
                 parser.Program();
                 Console.WriteLine("Syntax OK.");
 
-            } catch (FileNotFoundException e) {
+            }
+            catch (FileNotFoundException e)
+            {
                 Console.Error.WriteLine(e.Message);
                 Environment.Exit(1);
             }
         }
 
         //-----------------------------------------------------------
-        public static void Main(string[] args) {
+        public static void Main(string[] args)
+        {
             new Driver().Run(args);
         }
     }

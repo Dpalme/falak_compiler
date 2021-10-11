@@ -24,19 +24,20 @@ namespace Buttercup {
 
     public class Driver {
 
-        const string VERSION = "0.1";
+        const string VERSION = "0.3";
 
         //-----------------------------------------------------------
         static readonly string[] ReleaseIncludes = {
-            "Lexical analysis"
+            "Lexical analysis",
+            "Syntactic analysis",
+            "AST construction"
         };
 
         //-----------------------------------------------------------
         void PrintAppHeader() {
-            Console.WriteLine("Falak compiler, version " + VERSION);
+            Console.WriteLine("Buttercup compiler, version " + VERSION);
             Console.WriteLine(
-                "Copyright \u00A9 2013-2021 by A. Ortiz, ITESM CEM. modified"
-                + " by team 6");
+                "Copyright \u00A9 2013-2021 by A. Ortiz, ITESM CEM.");
             Console.WriteLine("This program is free software; you may "
                 + "redistribute it under the terms of");
             Console.WriteLine("the GNU General Public License version 3 or "
@@ -69,17 +70,19 @@ namespace Buttercup {
             try {
                 var inputPath = args[0];
                 var input = File.ReadAllText(inputPath);
+                var parser = new Parser(
+                    new Scanner(input).Scan().GetEnumerator());
+                var program = parser.Program();
+                Console.Write(program.ToStringTree());
 
-                Console.WriteLine(
-                    $"===== Tokens from: \"{inputPath}\" =====");
-                var count = 1;
-                foreach (var tok in new Scanner(input).Scan()) {
-                    Console.WriteLine($"[{count++}] {tok}");
+            } catch (Exception e) {
+
+                if (e is FileNotFoundException || e is SyntaxError) {
+                    Console.Error.WriteLine(e.Message);
+                    Environment.Exit(1);
                 }
 
-            } catch (FileNotFoundException e) {
-                Console.Error.WriteLine(e.Message);
-                Environment.Exit(1);
+                throw;
             }
         }
 

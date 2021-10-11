@@ -1,10 +1,12 @@
-# Buttercup compiler, version 0.1
+# Buttercup compiler, version 0.3
 
 This program is free software. You may redistribute it under the terms of the GNU General Public License version 3 or later. See `license.txt` for details.
 
 Included in this release:
 
 * Lexical analysis
+* Syntactic analysis
+* AST construction
 
 ## How to Build
 

@@ -177,6 +177,11 @@ namespace Falak
                 TokenCategory.PLUS,
                 TokenCategory.NEG
                 };
+        static readonly ISet<TokenCategory> firstOfAfterIdentifier =
+           new HashSet<TokenCategory>() {
+                TokenCategory.PAR_LEFT,
+                TokenCategory.ASSIGN
+           };
 
         static readonly ISet<TokenCategory> firstOfOrOperators =
             new HashSet<TokenCategory>() {
@@ -247,6 +252,8 @@ namespace Falak
             }
         }
 
+        // TODO
+
         public void Program()
         {
             DefinitionList();
@@ -256,6 +263,7 @@ namespace Falak
             Expect(TokenCategory.EOF);
         }
 
+        // TODO
         public void DefinitionList()
         {
             while (firstOfDeclaration.Contains(CurrentToken))
@@ -263,6 +271,8 @@ namespace Falak
                 Definition();
             }
         }
+
+        // TODO
         public void Definition()
         {
             switch (CurrentToken)
@@ -281,6 +291,7 @@ namespace Falak
             }
         }
 
+        // TODO
         public void VarDef()
         {
             Expect(TokenCategory.VAR);
@@ -288,11 +299,15 @@ namespace Falak
             Expect(TokenCategory.END);
         }
 
+
+        // TODO
         public void VarList()
         {
             IdList();
         }
-        public void IdList()
+
+        // TODO
+        public IdList IdList()
         {
             Expect(TokenCategory.IDENTIFIER);
             while (CurrentToken == TokenCategory.COMMA)
@@ -303,81 +318,64 @@ namespace Falak
         }
 
 
-        public void FunDef()
+        public Node FunDef()
         {
-            Expect(TokenCategory.IDENTIFIER);
-            Expect(TokenCategory.PAR_LEFT);
-            ParamList();
-            Expect(TokenCategory.PAR_RIGHT);
-            Expect(TokenCategory.CURL_LEFT);
-            VarDefList();
-            StatementList();
-            Expect(TokenCategory.CURL_RIGHT);
-        }
+            var functionToken = Expect(TokenCategory.IDENTIFIER);
 
-        public void ParamList()
-        {
+            Expect(TokenCategory.PAR_LEFT);
+            var idList = new IdList();
             if (CurrentToken == TokenCategory.IDENTIFIER)
             {
-                IdList();
+                idList = IdList();
             }
-        }
-
-        public void VarDefList()
-        {
+            Expect(TokenCategory.PAR_RIGHT);
+            Expect(TokenCategory.CURL_LEFT);
+            Node varDef = new VarDef();
             while (CurrentToken == TokenCategory.VAR)
             {
-                VarDef();
+                varDef = VarDef();
             }
-        }
-
-        public void StatementList()
-        {
+            var stmtList = new StatementList();
             while (firstOfStatement.Contains(CurrentToken))
             {
-                Statement();
+                stmtList.Add(Statement());
             }
+            var function = new Function() { idList, varDef, stmtList };
+            function.AnchorToken = functionToken;
+            Expect(TokenCategory.CURL_RIGHT);
+            return function;
         }
 
-        public void Statement()
+        public Node Statement()
         {
             switch (CurrentToken)
             {
                 case TokenCategory.IDENTIFIER:
-                    StatementStartId();
-                    break;
+                    return StatementStartId();
 
                 case TokenCategory.INC:
-                    StatementInc();
-                    break;
+                    return StatementInc();
 
                 case TokenCategory.DEC:
-                    StatementDec();
-                    break;
+                    return StatementDec();
 
                 case TokenCategory.IF:
-                    StatementIf();
-                    break;
+                    return StatementIf();
 
                 case TokenCategory.WHILE:
-                    StatementWhile();
-                    break;
+                    return StatementWhile();
 
                 case TokenCategory.DO:
-                    StatementDoWhile();
-                    break;
+                    return StatementDoWhile();
 
                 case TokenCategory.BREAK:
-                    StatementBreak();
-                    break;
+                    return StatementBreak();
 
                 case TokenCategory.RETURN:
-                    StatementReturn();
-                    break;
+                    return StatementReturn();
 
                 case TokenCategory.END:
-                    StatementEmpty();
-                    break;
+                    return StatementEmpty();
 
                 default:
                     throw new SyntaxError(firstOfStatement,
@@ -385,105 +383,149 @@ namespace Falak
             }
         }
 
-        public void StatementStartId()
+        public Node StatementStartId()
         {
-            Expect(TokenCategory.IDENTIFIER);
             switch (CurrentToken)
             {
-                case TokenCategory.ASSIGN:
-                    StatementAssign();
-                    break;
+                case TokenCategory.IDENTIFIER:
+                    var idToken = Expect(TokenCategory.IDENTIFIER);
+                    switch (CurrentToken)
+                    {
+                        case TokenCategory.ASSIGN:
+                            return StatementAssign(idToken);
 
-                case TokenCategory.PAR_LEFT:
-                    StatementFunCall();
-                    break;
-                default:
-                    throw new SyntaxError(firstOfStatement,
-                                          tokenStream.Current);
+                        case TokenCategory.PAR_LEFT:
+                            return StatementFunCall(idToken);
+                        default:
+                            throw new SyntaxError(firstOfAfterIdentifier,
+                                                  tokenStream.Current);
+                    }
             }
         }
 
-        public void StatementAssign()
+        public Node StatementAssign(Token idToken)
         {
-            Expect(TokenCategory.ASSIGN);
-            Expression();
+            var assignToken = Expect(TokenCategory.ASSIGN);
+            var expr = Expression();
+            var result = new Assignment() { AnchorToken = assignToken };
+            result.Add(new Identifier() { AnchorToken = idToken });
+            result.Add(expr);
             Expect(TokenCategory.END);
+            return result;
         }
 
-        public void StatementInc()
+        public Node StatementInc()
         {
-            Expect(TokenCategory.INC);
-            Expect(TokenCategory.IDENTIFIER);
+            var result = new Inc() { AnchorToken = Expect(TokenCategory.INC) };
+            result.Add(new Identifier() { AnchorToken = Expect(TokenCategory.IDENTIFIER) });
             Expect(TokenCategory.END);
+            return result;
         }
 
-        public void StatementDec()
+        public Node StatementDec()
         {
-            Expect(TokenCategory.DEC);
-            Expect(TokenCategory.IDENTIFIER);
+            var result = new Dec() { AnchorToken = Expect(TokenCategory.DEC) };
+            result.Add(new Identifier() { AnchorToken = Expect(TokenCategory.IDENTIFIER) });
             Expect(TokenCategory.END);
+            return result;
         }
 
-        public void StatementFunCall()
+        public Node StatementFunCall(Token idToken)
         {
-            FunCall();
+            var result = FunCall();
+            Expect(tokenCategory.END);
+            result.AnchorToken = idToken;
+            return result;
         }
 
-        public void FunCall()
+        public Node FunCall()
         {
             Expect(TokenCategory.PAR_LEFT);
-            ExprList();
+            var result = ExprList();
             Expect(TokenCategory.PAR_RIGHT);
+            return result;
         }
 
-        public void StatementIf()
+        public Node StatementIf()
         {
-            Expect(TokenCategory.IF);
+            var ifToken = Expect(TokenCategory.IF);
             Expect(TokenCategory.PAR_LEFT);
-            Expression();
+            var expr = Expression();
             Expect(TokenCategory.PAR_RIGHT);
             Expect(TokenCategory.CURL_LEFT);
-            StatementList();
+            var stmtList = new StatementList();
+            while (firstOfStatement.Contains(CurrentToken))
+            {
+                stmtList.Add(Statement());
+            }
             Expect(TokenCategory.CURL_RIGHT);
-            ElseIfList();
-            Else();
+            var elseifStmt = ElseIfList();
+            var elseStmt = Else();
+            var stmtIf = new If() { expr, stmtList, elseifStmt, elseStmt };
+            stmtIf.AnchorToken = ifToken;
+            return stmtIf;
         }
 
-        public void ElseIfList()
+        public Node ElseIfList()
         {
+            var result = new ElseIfList();
             while (CurrentToken == TokenCategory.ELSE_IF)
             {
-                Expect(TokenCategory.ELSE_IF);
+                var ifToken = Expect(TokenCategory.ELSE_IF);
                 Expect(TokenCategory.PAR_LEFT);
-                Expression();
+                var expr = Expression();
                 Expect(TokenCategory.PAR_RIGHT);
                 Expect(TokenCategory.CURL_LEFT);
-                StatementList();
+                var stmtList = StatementList();
+                while (firstOfStatement.Contains(CurrentToken))
+                {
+                    stmtList.Add(Statement());
+                }
                 Expect(TokenCategory.CURL_RIGHT);
+                var elseIf = new ElseIf() { expr, stmtList };
+                elseIf.AnchorToken = ifToken;
+                result.Add(elseIf);
             }
+            return result;
         }
 
-        public void Else()
+        public Node Else()
         {
+            var result = new Else();
             if (CurrentToken == TokenCategory.ELSE)
             {
-                Expect(TokenCategory.ELSE);
+                var elseToken = Expect(TokenCategory.ELSE);
+                result.AnchorToken = elseToken;
                 Expect(TokenCategory.CURL_LEFT);
-                StatementList();
+                var stmtList = new StatementList();
+                while (firstOfStatement.Contains(CurrentToken))
+                {
+                    stmtList.Add(Statement());
+                }
+                result.Add(stmtList);
                 Expect(TokenCategory.CURL_RIGHT);
             }
+            return result;
         }
 
-        public void StatementWhile()
+        public Node StatementWhile()
         {
-            Expect(TokenCategory.WHILE);
-            // Expect(TokenCategory.ELSE_IF);
+            var result = new While() { AnchorToken = Expect(TokenCategory.WHILE) };
+
             Expect(TokenCategory.PAR_LEFT);
-            Expression();
+            var expr = Expression();
             Expect(TokenCategory.PAR_RIGHT);
             Expect(TokenCategory.CURL_LEFT);
-            StatementList();
+            var stmtList = new StatementList();
+            while (firstOfStatement.Contains(CurrentToken))
+            {
+                stmtList.Add(Statement());
+            }
             Expect(TokenCategory.CURL_RIGHT);
+            result.Add(expr);
+            result.Add(stmtList);
+
+            return result;
         }
 
         public Node StatementDoWhile()
@@ -493,7 +535,7 @@ namespace Falak
             var stmtList = new StatementList();
             while (firstOfStatement.Contains(CurrentToken))
             {
-                stmtList.Add(Statement());  
+                stmtList.Add(Statement());
             }
 
             Expect(TokenCategory.CURL_RIGHT);
@@ -501,11 +543,11 @@ namespace Falak
             Expect(TokenCategory.PAR_LEFT);
 
             var condition = Expression();
-            
+
             Expect(TokenCategory.PAR_RIGHT);
             Expect(TokenCategory.END);
 
-            var result = new Do(){condition, stmtList};
+            var result = new Do() { condition, stmtList };
             result.AnchorToken = doToken;
 
             return result;

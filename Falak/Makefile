@@ -4,7 +4,7 @@
 #   Hector Ivan Aguirre Arteaga   A01169628
 
 falak.exe: Driver.cs Scanner.cs Token.cs TokenCategory.cs
-	mcs -out:falak.exe Driver.cs Parser.cs Scanner.cs Token.cs TokenCategory.cs SyntaxError.cs
+	mcs -out:falak.exe Driver.cs Parser.cs Scanner.cs Token.cs TokenCategory.cs SyntaxError.cs Node.cs SpecificNodes.cs
 
 clean:
 	rm -f falak.exe

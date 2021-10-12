@@ -433,7 +433,7 @@ namespace Falak
         public Node StatementFunCall(Token idToken)
         {
             var result = FunCall();
-            Expect(tokenCategory.END);
+            Expect(TokenCategory.END);
             result.AnchorToken = idToken;
             return result;
         }
@@ -801,7 +801,7 @@ namespace Falak
 
             if (firstOfUnaryOperator.Contains(CurrentToken))
             {
-                unaryOperators.add(OpUnary());
+                unaryOperators.Add(OpUnary());
                 ExprUnary();
             }
             else if (firstOfPrimaryExpression.Contains(CurrentToken))
@@ -882,7 +882,7 @@ namespace Falak
         {
             var result = new Array();
             Expect(TokenCategory.ARRAY_LEFT);
-            result.add(ExprList());
+            result.Add(ExprList());
             Expect(TokenCategory.ARRAY_RIGHT);
             return result;
         }
@@ -894,7 +894,7 @@ namespace Falak
                 case TokenCategory.BOOL:
                     return new Boolean()
                     {
-                        AnchorToken = Expect(TokenCategoty.BOOL)
+                        AnchorToken = Expect(TokenCategory.BOOL)
                     };
                 case TokenCategory.FALSE:
                     return new False()

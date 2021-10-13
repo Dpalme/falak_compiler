@@ -39,6 +39,7 @@ namespace Falak {
     class Equals: Node {}
     class Expression: Node {}
     class ExpressionList: Node {}
+    class Operator: Node {}
     class IdList: Node {}
     class Or: Node {}    
     class False: Node {}

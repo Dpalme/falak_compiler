@@ -85,7 +85,8 @@ namespace Falak
             {
                 var inputPath = args[0];
                 var input = File.ReadAllText(inputPath);
-
+                var parser = new Parser(
+                    new Scanner(input).Scan().GetEnumerator());
                 /*
                 Console.WriteLine(
                     $"===== Tokens from: \"{inputPath}\" =====");
@@ -94,16 +95,14 @@ namespace Falak
                     Console.WriteLine($"[{count++}] {tok}");
                 }*/
 
-                Console.WriteLine("Lexical Analysis OK.");
                 /*
+                Console.WriteLine("Lexical Analysis OK.");
                 Console.WriteLine("");
                 Console.WriteLine(
                     $"===== Syntax Analysis from: \"{inputPath}\" =====");
                 */
-                var parser = new Parser(
-                    new Scanner(input).Scan().GetEnumerator());
-                parser.Program();
-                Console.WriteLine("Syntax OK.");
+                var program = parser.Program();
+                Console.Write(program.ToStringTree());
 
             }
             catch (FileNotFoundException e)

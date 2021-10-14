@@ -105,10 +105,17 @@ namespace Falak
                 Console.Write(program.ToStringTree());
 
             }
-            catch (FileNotFoundException e)
+            catch (Exception e)
             {
-                Console.Error.WriteLine(e.Message);
-                Environment.Exit(1);
+                if (e is FileNotFoundException || e is SyntaxError)
+                {
+                    Console.Error.WriteLine(e.Message);
+                    Environment.Exit(1);
+                }
+                // if (e is SyntaxError) {
+                //     Console.Error.WriteLine(e.Message);
+                //     Environment.Exit(1);
+                // }
             }
         }
 

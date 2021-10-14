@@ -66,7 +66,7 @@ namespace Falak {
             sb.Append(node);
             sb.Append('\n');
             foreach (var child in node.children) {
-                TreeTraversal(child, indent + "  ", sb);
+                TreeTraversal(child, indent + "    ", sb);
             }
         }
     }

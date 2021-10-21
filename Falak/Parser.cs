@@ -215,7 +215,6 @@ namespace Falak
 
         static readonly ISet<TokenCategory> firstOfLiteral =
             new HashSet<TokenCategory>() {
-                TokenCategory.BOOL,
                 TokenCategory.CHARACTER,
                 TokenCategory.FALSE,
                 TokenCategory.INT_LITERAL,
@@ -622,18 +621,14 @@ namespace Falak
         public List<Node> ExprList()
         {
             List<Node> exprList = new List<Node>();
-            try
+            if (firstOfExprUnary.Contains(CurrentToken) || firstOfPrimaryExpression.Contains(CurrentToken) || firstOfUnaryOperator.Contains(CurrentToken))
             {
                 exprList.Add(Expression());
-            }
-            catch (SyntaxError)
-            {
-                return exprList;
-            }
-            while (TokenCategory.COMMA == CurrentToken)
-            {
-                Expect(TokenCategory.COMMA);
-                exprList.Add(Expression());
+                while (TokenCategory.COMMA == CurrentToken)
+                {
+                    Expect(TokenCategory.COMMA);
+                    exprList.Add(Expression());
+                }
             }
             return exprList;
         }
@@ -791,7 +786,7 @@ namespace Falak
                         AnchorToken = Expect(TokenCategory.PLUS)
                     };
                 case TokenCategory.NEG:
-                    return new Neg()
+                    return new Minus()
                     {
                         AnchorToken = Expect(TokenCategory.NEG)
                     };
@@ -938,11 +933,6 @@ namespace Falak
         {
             switch (CurrentToken)
             {
-                case TokenCategory.BOOL:
-                    return new Boolean()
-                    {
-                        AnchorToken = Expect(TokenCategory.BOOL)
-                    };
                 case TokenCategory.FALSE:
                     return new False()
                     {

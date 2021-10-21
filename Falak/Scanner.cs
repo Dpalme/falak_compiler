@@ -81,7 +81,6 @@ namespace Falak
               | (?<Var>        var\b                    )
               | (?<While>      while\b                  )
 
-              | (?<Bool>       (?:true\b)|(?:false\b)   )
               | (?<Int>        -?[1-9][0-9]{0-9}\b      )
               | (?<Character>  '((\\(n|r|t|\\|'|""|u[a-fA-F0-9]{6}))|[A-z0-9/])' )
               | (?<String>     ""([^""\n\\]|\\([nrt\\'""]|u[0-9a-fA-F]{6}))*""  )
@@ -135,7 +134,6 @@ namespace Falak
                 {"True", TokenCategory.TRUE},
                 {"Var", TokenCategory.VAR},
                 {"While", TokenCategory.WHILE},
-                {"Bool", TokenCategory.BOOL},
                 {"Int", TokenCategory.INT},
                 {"Character", TokenCategory.CHARACTER},
                 {"String", TokenCategory.STRING},

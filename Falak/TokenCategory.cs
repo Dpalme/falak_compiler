@@ -30,7 +30,6 @@ namespace Falak
         AND,
         ARRAY_LEFT,
         ASSIGN,
-        BOOL,
         BIT_OR,
         BREAK,
         COMMENT,

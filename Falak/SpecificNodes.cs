@@ -26,10 +26,8 @@ namespace Falak {
     class Assignment: Node {}
     class BitOr: Node{}
     class Break: Node {}
-    class Boolean: Node{}
     class Character: Node {}
     class Dec: Node {}
-    class Declaration: Node {}
     class DeclarationList: Node {}
     class Div: Node {}
     class Do: Node {}
@@ -37,9 +35,6 @@ namespace Falak {
     class ElseIf: Node {}
     class ElseIfList: Node {}
     class Equals: Node {}
-    class Expression: Node {}
-    class ExpressionList: Node {}
-    class Operator: Node {}
     class Or: Node {}    
     class False: Node {}
     class FunCall: Node {}
@@ -53,12 +48,12 @@ namespace Falak {
     class More: Node {}
     class MoreEqual: Node {}
     class Mul: Node {}
+    class Minus: Node {}
     class Neg: Node {}
     class Not: Node {}
     class NotEquals: Node {}
     class ParamList: Node {}
     class Plus: Node {}
-    class Print: Node {}
     class Program: Node {}
     class Remainder: Node {}
     class Return: Node {}

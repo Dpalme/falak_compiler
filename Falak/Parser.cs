@@ -313,7 +313,8 @@ namespace Falak
         public Node VarList()
         {
             Node varList = new VarDef();
-            foreach(Node node in IdList()){
+            foreach (Node node in IdList())
+            {
                 varList.Add(node);
             }
             return varList;
@@ -418,29 +419,33 @@ namespace Falak
 
         public Node StatementStartId()
         {
-            var idToken = Expect(TokenCategory.IDENTIFIER);
             switch (CurrentToken)
             {
-                case TokenCategory.ASSIGN:
-                    var res = StatementAssign();
-                    res.AnchorToken = idToken;
-                    return res;
+                case TokenCategory.IDENTIFIER:
+                    var idToken = Expect(TokenCategory.IDENTIFIER);
+                    switch (CurrentToken)
+                    {
+                        case TokenCategory.ASSIGN:
+                            return StatementAssign(idToken);
 
-                case TokenCategory.PAR_LEFT:
-                    var result = StatementFunCall();
-                    result.AnchorToken = idToken;
-                    return result;
+                        case TokenCategory.PAR_LEFT:
+                            return StatementFunCall(idToken);
+                        default:
+                            throw new SyntaxError(firstOfAfterIdentifier,
+                                                  tokenStream.Current);
+                    }
                 default:
                     throw new SyntaxError(firstOfAfterIdentifier,
                                           tokenStream.Current);
             }
         }
 
-        public Node StatementAssign()
+        public Node StatementAssign(Token idToken)
         {
             var assignToken = Expect(TokenCategory.ASSIGN);
             var expr = Expression();
             var result = new Assignment() { AnchorToken = assignToken };
+            result.Add(new Identifier() { AnchorToken = idToken });
             result.Add(expr);
             Expect(TokenCategory.END);
             return result;
@@ -462,10 +467,11 @@ namespace Falak
             return result;
         }
 
-        public Node StatementFunCall()
+        public Node StatementFunCall(Token idToken)
         {
             var result = FunCall();
             Expect(TokenCategory.END);
+            result.AnchorToken = idToken;
             return result;
         }
 
@@ -613,9 +619,9 @@ namespace Falak
             };
         }
 
-        public Node ExprList()
+        public List<Node> ExprList()
         {
-            Node exprList = new ExpressionList();
+            List<Node> exprList = new List<Node>();
             try
             {
                 exprList.Add(Expression());
@@ -801,11 +807,8 @@ namespace Falak
             while (firstOfMultiplicationOperator.Contains(CurrentToken))
             {
                 var secondExpr = OpMul();
-                firstExpr.Add(secondExpr);
-                foreach (Node node in ExprUnary())
-                {
-                    secondExpr.Add(node);
-                }
+                secondExpr.Add(firstExpr);
+                secondExpr.Add(ExprUnary());
                 firstExpr = secondExpr;
             }
             return firstExpr;
@@ -861,18 +864,18 @@ namespace Falak
             switch (CurrentToken)
             {
                 case TokenCategory.PLUS:
-                    return new Operator()
+                    return new Plus()
                     {
                         AnchorToken = Expect(TokenCategory.PLUS)
                     };
                 case TokenCategory.NEG:
-                    var negToken = Expect(TokenCategory.NEG);
-                    var result = new Operator() { Expression() };
-                    result.AnchorToken = negToken;
-                    return result;
+                    return new Neg()
+                    {
+                        AnchorToken = Expect(TokenCategory.NEG)
+                    };
 
                 case TokenCategory.NOT:
-                    return new Operator()
+                    return new Not()
                     {
                         AnchorToken = Expect(TokenCategory.NOT)
                     };
@@ -923,7 +926,10 @@ namespace Falak
         {
             var result = new Array();
             Expect(TokenCategory.ARRAY_LEFT);
-            result.Add(ExprList());
+            foreach (Node node in ExprList())
+            {
+                result.Add(node);
+            }
             Expect(TokenCategory.ARRAY_RIGHT);
             return result;
         }

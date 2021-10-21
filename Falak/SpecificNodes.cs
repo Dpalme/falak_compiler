@@ -40,7 +40,6 @@ namespace Falak {
     class Expression: Node {}
     class ExpressionList: Node {}
     class Operator: Node {}
-    class IdList: Node {}
     class Or: Node {}    
     class False: Node {}
     class FunCall: Node {}
@@ -68,7 +67,6 @@ namespace Falak {
     class String: Node {}
     class True: Node {}
     class VarDef: Node {}
-    class VarDefList: Node {}
     class While: Node {}
 
 }

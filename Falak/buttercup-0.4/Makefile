@@ -17,10 +17,12 @@
 #
 
 buttercup.exe: Driver.cs Scanner.cs Token.cs TokenCategory.cs Parser.cs \
-	SyntaxError.cs Node.cs SpecificNodes.cs
+	SyntaxError.cs Node.cs SpecificNodes.cs SemanticVisitor.cs \
+	Type.cs SemanticError.cs
 
 	mcs -out:buttercup.exe Driver.cs Scanner.cs Token.cs TokenCategory.cs \
-	Parser.cs SyntaxError.cs Node.cs SpecificNodes.cs
+	Parser.cs SyntaxError.cs Node.cs SpecificNodes.cs SemanticVisitor.cs \
+	Type.cs SemanticError.cs
 
 clean:
 

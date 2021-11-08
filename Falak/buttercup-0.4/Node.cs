@@ -1,5 +1,5 @@
 /*
-  Falak compiler - Parent Node class for the AST (Abstract Syntax Tree).
+  Buttercup compiler - Parent Node class for the AST (Abstract Syntax Tree).
   Copyright (C) 2013-2020 Ariel Ortiz, ITESM CEM
 
   This program is free software: you can redistribute it and/or modify

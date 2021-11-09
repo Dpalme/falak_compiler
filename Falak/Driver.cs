@@ -38,7 +38,8 @@ namespace Falak
         static readonly string[] ReleaseIncludes = {
             "Lexical analysis",
             "Syntactic analysis",
-            "AST Construction"
+            "AST Construction",
+            "Semantic analysis"
         };
 
         //-----------------------------------------------------------
@@ -87,28 +88,33 @@ namespace Falak
                 var input = File.ReadAllText(inputPath);
                 var parser = new Parser(
                     new Scanner(input).Scan().GetEnumerator());
-                var progran = parser.Program();
+                var program = parser.Program();
                 Console.WriteLine("Syntax Ok");
-                var semantic = new SemanticVisitor();
-                semantic.Visit((dynamic)progran);
+                Console.Write(program.ToStringTree());
 
-                /* var semantic2 = new SecondSemanticVisitor(semantic.TableVariables, semantic.TableFunctions);
-                semantic2.Visit((dynamic) program); */
+                var semantic = new SemanticVisitor();
+                semantic.Visit((dynamic)program);
+
+                var semantic2 = new SecondSemanticVisitor(semantic.TableVariables, semantic.TableFunctions);
+                semantic2.Visit((dynamic) program);
                 Console.WriteLine("Semantics OK");
                 Console.WriteLine();
-                Console.WriteLine("Symbol Table");
+                Console.WriteLine("Variables Table");
                 Console.WriteLine("============");
-                foreach (var entry in semantic.TableVariables)
+                foreach (var entry in semantic2.TableVariables)
                 {
                     Console.WriteLine(entry);
                 }
-                foreach (var entry in semantic.TableFunctions)
+                Console.WriteLine();
+                Console.WriteLine("Functions Table");
+                Console.WriteLine("============");
+                foreach (var entry in semantic2.TableFunctions)
                 {
-                    Console.WriteLine(entry);
+                    if (!entry.Value.isPrimitive) {
+                        Console.WriteLine(entry);
+                    }
                 }
 
-                var program = parser.Program();
-                Console.Write(program.ToStringTree());
 
             }
             catch (Exception e)

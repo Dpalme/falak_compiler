@@ -120,15 +120,10 @@ namespace Falak
         public void Visit(Function node)
         {
             var functionName = node.AnchorToken.Lexeme;
-            var arity = 0;
-            if (node[0].ChildrenLength > 0)
-            {
-                arity = node[0][0].ChildrenLength;
-            }
+            var arity = node[0].ChildrenLength;
             if (TableFunctions.ContainsKey(functionName))
             {
                 throw new SemanticError("Duplicated Function: " + functionName, node.AnchorToken);
-
             }
             else
             {
@@ -139,7 +134,7 @@ namespace Falak
 
     //-------------------------SECOND SEMANTIC VISITOR---------------------------------------------
 
-    class SecondSemantiVisitor
+    class SecondSemanticVisitor
     {
 
         public HashSet<string> TableVariables
@@ -184,15 +179,27 @@ namespace Falak
         }
         //-----------------------------------------------------------
 
-
+        public void Visit(FunCall node)
+        {
+            var functionName = node.AnchorToken.Lexeme;
+            var arity = node.ChildrenLength;
+            if (TableFunctions.ContainsKey(functionName))
+            {
+                if (TableFunctions[functionName].arity != arity) {
+                    throw new SemanticError("Wrong number of arguments: " + functionName, node.AnchorToken);
+                }
+            }
+            else
+            {
+                throw new SemanticError("Function not recognized: " + functionName, node.AnchorToken);
+            }
+        }
 
         /* TODO:
 
-        FUNCALL
         ASSIGNMENT
         PARAM_LIST
         VAR_DEF_LIST ? 
-        FUNCTION
 
 
          */

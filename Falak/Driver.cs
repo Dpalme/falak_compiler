@@ -87,35 +87,38 @@ namespace Falak
                 var input = File.ReadAllText(inputPath);
                 var parser = new Parser(
                     new Scanner(input).Scan().GetEnumerator());
-                /*
-                Console.WriteLine(
-                    $"===== Tokens from: \"{inputPath}\" =====");
-                var count = 1;
-                /*foreach (var tok in new Scanner(input).Scan()) {
-                    Console.WriteLine($"[{count++}] {tok}");
-                }*/
+                var progran = parser.Program();
+                Console.WriteLine("Syntax Ok");
+                var semantic = new SemanticVisitor();
+                semantic.Visit((dynamic)progran);
 
-                /*
-                Console.WriteLine("Lexical Analysis OK.");
-                Console.WriteLine("");
-                Console.WriteLine(
-                    $"===== Syntax Analysis from: \"{inputPath}\" =====");
-                */
+                /* var semantic2 = new SecondSemanticVisitor(semantic.TableVariables, semantic.TableFunctions);
+                semantic2.Visit((dynamic) program); */
+                Console.WriteLine("Semantics OK");
+                Console.WriteLine();
+                Console.WriteLine("Symbol Table");
+                Console.WriteLine("============");
+                foreach (var entry in semantic.TableVariables)
+                {
+                    Console.WriteLine(entry);
+                }
+                foreach (var entry in semantic.TableFunctions)
+                {
+                    Console.WriteLine(entry);
+                }
+
                 var program = parser.Program();
                 Console.Write(program.ToStringTree());
 
             }
             catch (Exception e)
             {
-                if (e is FileNotFoundException || e is SyntaxError)
+                if (e is FileNotFoundException || e is SyntaxError || e is SemanticError)
                 {
                     Console.Error.WriteLine(e.Message);
                     Environment.Exit(1);
                 }
-                // if (e is SyntaxError) {
-                //     Console.Error.WriteLine(e.Message);
-                //     Environment.Exit(1);
-                // }
+
             }
         }
 

@@ -90,25 +90,22 @@ namespace Falak
                     new Scanner(input).Scan().GetEnumerator());
                 var program = parser.Program();
                 Console.WriteLine("Syntax Ok");
-                Console.Write(program.ToStringTree());
+                // Console.Write(program.ToStringTree());
 
-                var semantic = new SemanticVisitor();
-                semantic.Visit((dynamic)program);
-
-                var semantic2 = new SecondSemanticVisitor(semantic.TableVariables, semantic.TableFunctions);
-                semantic2.Visit((dynamic) program);
+                var semantics = new SemanticVisitor();
+                semantics.Visit((dynamic) program);
                 Console.WriteLine("Semantics OK");
                 Console.WriteLine();
                 Console.WriteLine("Variables Table");
                 Console.WriteLine("============");
-                foreach (var entry in semantic2.TableVariables)
+                foreach (var entry in semantics.VariablesTable)
                 {
                     Console.WriteLine(entry);
                 }
                 Console.WriteLine();
                 Console.WriteLine("Functions Table");
                 Console.WriteLine("============");
-                foreach (var entry in semantic2.TableFunctions)
+                foreach (var entry in semantics.FunctionsTable)
                 {
                     if (!entry.Value.isPrimitive) {
                         Console.WriteLine(entry);
@@ -117,7 +114,7 @@ namespace Falak
 
 
             }
-            catch (Exception e)
+            catch (FileNotFoundException e)
             {
                 if (e is FileNotFoundException || e is SyntaxError || e is SemanticError)
                 {

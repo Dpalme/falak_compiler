@@ -39,125 +39,65 @@ namespace Falak
             this.arity = arity;
             this.value = value;
         }
+
+        override public string ToString() {
+            return $"{name}, {isPrimitive}, {arity}, {value}";
+        }
     }
+
+    class VariableRecord
+    {
+        public string name;
+        public int depth;
+        public string scope;
+
+        public VariableRecord(string name, int depth, string scope)
+        {
+            this.name = name;
+            this.depth = depth;
+            this.scope = scope;
+        }
+
+        override public string ToString() {
+            return $"{name}: @{scope}({depth})";
+        }
+    }
+
     class SemanticVisitor
     {
-        public HashSet<string> TableVariables
-        {
-            get;
-            set;
-        }
-        public IDictionary<string, FunctionRecord> TableFunctions
+
+        public IDictionary<string, VariableRecord> VariablesTable
         {
             get;
             set;
         }
 
+        public IDictionary<string, FunctionRecord> FunctionsTable
+        {
+            get;
+            set;
+        }
+        //-----------------------------------------------------------
+
+        int depth;
+        string scope;
+        //-----------------------------------------------------------
         public SemanticVisitor()
         {
-            TableVariables = new HashSet<string>();
-            TableFunctions = new SortedDictionary<string, FunctionRecord>();
+            FunctionsTable = new SortedDictionary<string, FunctionRecord>();
+            VariablesTable = new SortedDictionary<string, VariableRecord>();
 
-            TableFunctions.Add("printi", new FunctionRecord("printi", true, 1, null));
-            TableFunctions.Add("printc", new FunctionRecord("printc", true, 1, null));
-            TableFunctions.Add("prints", new FunctionRecord("prints", true, 1, null));
-            TableFunctions.Add("println", new FunctionRecord("println", true, 0, null));
-            TableFunctions.Add("readi", new FunctionRecord("readi", true, 0, null));
-            TableFunctions.Add("reads", new FunctionRecord("reads", true, 0, null));
-            TableFunctions.Add("new", new FunctionRecord("new", true, 1, null));
-            TableFunctions.Add("size", new FunctionRecord("size", true, 1, null));
-            TableFunctions.Add("add", new FunctionRecord("add", true, 2, null));
-            TableFunctions.Add("get", new FunctionRecord("get", true, 2, null));
-            TableFunctions.Add("set", new FunctionRecord("set", true, 3, null));
-        }
-        //-----------------------------------------------------------
-
-        public void Visit(Program node)
-        {
-            Visit((dynamic)node[0]);
-        }
-        //-----------------------------------------------------------
-
-        void VisitChildren(Node node)
-        {
-            foreach (var child in node)
-            {
-                Visit((dynamic) child);
-            }
-        }
-        //-----------------------------------------------------------
-        public void Visit(DeclarationList node)
-        {
-            VisitChildren(node);
-            if (!TableFunctions.ContainsKey("main"))
-            {
-                throw new SemanticError("No main function.");
-
-            }
-        }
-        //-----------------------------------------------------------
-
-
-        public void Visit(VarDef node)
-        {
-            var identifiers = node[0];
-            foreach (var identifier in identifiers)
-            {
-                var variableName = identifier.AnchorToken.Lexeme;
-                if (TableVariables.Contains(variableName))
-                {
-                    throw new SemanticError(
-                        "Duplicated variable: " + variableName, identifier.AnchorToken
-                    );
-                }
-                else
-                {
-                    TableVariables.Add(variableName);
-                }
-            }
-        }
-
-        public void Visit(Function node)
-        {
-            var functionName = node.AnchorToken.Lexeme;
-            var arity = node[0].ChildrenLength;
-            if (TableFunctions.ContainsKey(functionName))
-            {
-                throw new SemanticError("Duplicated Function: " + functionName, node.AnchorToken);
-            }
-            else
-            {
-                TableFunctions.Add(functionName, new FunctionRecord(functionName, false, arity, new HashSet<string>()));
-            }
-        }
-    }
-
-    //-------------------------SECOND SEMANTIC VISITOR---------------------------------------------
-
-    class SecondSemanticVisitor
-    {
-
-        public HashSet<string> TableVariables
-        {
-            get;
-            set;
-        }
-        //-----------------------------------------------------------
-
-        public IDictionary<string, FunctionRecord> TableFunctions
-        {
-            get;
-            set;
-        }
-        //-----------------------------------------------------------
-
-        int depth = 0;
-        //-----------------------------------------------------------
-
-        public SecondSemanticVisitor(HashSet<string> tableVariables, IDictionary<string, FunctionRecord> tableFunctions)
-        {
-            this.TableVariables = tableVariables;
-            this.TableFunctions = tableFunctions;
+            FunctionsTable.Add("printi", new FunctionRecord("printi", true, 1, null));
+            FunctionsTable.Add("printc", new FunctionRecord("printc", true, 1, null));
+            FunctionsTable.Add("prints", new FunctionRecord("prints", true, 1, null));
+            FunctionsTable.Add("println", new FunctionRecord("println", true, 0, null));
+            FunctionsTable.Add("readi", new FunctionRecord("readi", true, 0, null));
+            FunctionsTable.Add("reads", new FunctionRecord("reads", true, 0, null));
+            FunctionsTable.Add("new", new FunctionRecord("new", true, 1, null));
+            FunctionsTable.Add("size", new FunctionRecord("size", true, 1, null));
+            FunctionsTable.Add("add", new FunctionRecord("add", true, 2, null));
+            FunctionsTable.Add("get", new FunctionRecord("get", true, 2, null));
+            FunctionsTable.Add("set", new FunctionRecord("set", true, 3, null));
         }
         //-----------------------------------------------------------
         void VisitChildren(Node node)
@@ -176,33 +116,92 @@ namespace Falak
         public void Visit(Program node)
         {
             Visit((dynamic)node[0]);
+            if (!FunctionsTable.ContainsKey("main"))
+            {
+                throw new SemanticError("No main function.");
+            }
         }
         //-----------------------------------------------------------
-
         public void Visit(FunCall node)
         {
             var functionName = node.AnchorToken.Lexeme;
             var arity = node.ChildrenLength;
-            if (TableFunctions.ContainsKey(functionName))
+            if (FunctionsTable.ContainsKey(functionName))
             {
-                if (TableFunctions[functionName].arity != arity) {
-                    throw new SemanticError("Wrong number of arguments: " + functionName, node.AnchorToken);
+                if (FunctionsTable[functionName].arity != arity)
+                {
+                    throw new SemanticError(functionName + " expected " + FunctionsTable[functionName].arity + "arguments, but found " + arity, node.AnchorToken);
                 }
             }
             else
             {
-                throw new SemanticError("Function not recognized: " + functionName, node.AnchorToken);
+                throw new SemanticError("Function " + functionName + " not recognized", node.AnchorToken);
+            }
+            foreach (var child in node) {
+                if (child is Identifier && !VariablesTable.ContainsKey(child.AnchorToken.Lexeme + "@" + scope)) {
+                    throw new SemanticError("Variable " + child.AnchorToken.Lexeme + " not recognized", child.AnchorToken);
+                } else {
+                    Visit((dynamic) child);
+                }
+            }
+        }
+        //-----------------------------------------------------------
+        public void Visit(Function node)
+        {
+            var functionName = node.AnchorToken.Lexeme;
+            var arity = node[0].ChildrenLength;
+            if (FunctionsTable.ContainsKey(functionName))
+            {
+                throw new SemanticError("The function " + functionName + " has already been declared", node.AnchorToken);
+            }
+            else
+            {
+                FunctionsTable.Add(functionName, new FunctionRecord(functionName, false, arity, new HashSet<string>()));
+            }
+            scope = functionName;
+            depth++;
+            VisitChildren(node);
+            depth--;
+        }
+        //-----------------------------------------------------------
+        public void Visit(VarDef node)
+        {
+            foreach (var identifier in node)
+            {
+                var variableName = identifier.AnchorToken.Lexeme;
+                if (VariablesTable.ContainsKey(variableName + "@" + scope))
+                {
+                    throw new SemanticError(
+                        "The variable " + variableName + " has already been declared", identifier.AnchorToken
+                    );
+                }
+                else
+                {
+                    VariablesTable.Add(variableName + "@" + scope, new VariableRecord(variableName, depth, scope));
+                }
             }
         }
 
-        /* TODO:
+        public void Visit(ParamList node)
+        {
+            foreach (var identifier in node)
+            {
+                VariablesTable.Add(identifier.AnchorToken.Lexeme + "@" + scope, new VariableRecord(identifier.AnchorToken.Lexeme, depth, scope));
+            }
+        }
 
-        ASSIGNMENT
-        PARAM_LIST
-        VAR_DEF_LIST ? 
-
-
-         */
+        public void Visit(Assignment node)
+        {
+            var varName = node[0].AnchorToken.Lexeme;
+            if (!VariablesTable.ContainsKey(varName + "@" + scope))
+            {
+                foreach (var variable in VariablesTable)
+                {
+                    System.Console.WriteLine(variable);
+                }
+                throw new SemanticError("Undeclared variable: " + varName, node.AnchorToken);
+            }
+        }
 
 
         public void Visit(StatementList node)

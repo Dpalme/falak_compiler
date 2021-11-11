@@ -91,7 +91,11 @@ namespace Falak
                 var program = parser.Program();
                 Console.WriteLine("Syntax Ok");
                 // Console.Write(program.ToStringTree());
+                
+                // var semantic = new FirstVisitor();
+                // semantic.Visit((dynamic)program);
 
+                // var semantics = new SemanticVisitor(semantic.VariablesTable, semantic.FunctionsTable);
                 var semantics = new SemanticVisitor();
                 semantics.Visit((dynamic) program);
                 Console.WriteLine("Semantics OK");

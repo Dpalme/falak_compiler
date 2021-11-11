@@ -40,7 +40,8 @@ namespace Falak
             this.value = value;
         }
 
-        override public string ToString() {
+        override public string ToString()
+        {
             return $"{name}, {isPrimitive}, {arity}, {value}";
         }
     }
@@ -58,7 +59,8 @@ namespace Falak
             this.scope = scope;
         }
 
-        override public string ToString() {
+        override public string ToString()
+        {
             return $"{name}: @{scope}({depth})";
         }
     }
@@ -137,13 +139,7 @@ namespace Falak
             {
                 throw new SemanticError("Function " + functionName + " not recognized", node.AnchorToken);
             }
-            foreach (var child in node) {
-                if (child is Identifier && !VariablesTable.ContainsKey(child.AnchorToken.Lexeme + "@" + scope)) {
-                    throw new SemanticError("Variable " + child.AnchorToken.Lexeme + " not recognized", child.AnchorToken);
-                } else {
-                    Visit((dynamic) child);
-                }
-            }
+            VisitChildren(node);
         }
         //-----------------------------------------------------------
         public void Visit(Function node)
@@ -161,6 +157,7 @@ namespace Falak
             scope = functionName;
             depth++;
             VisitChildren(node);
+            scope = "";
             depth--;
         }
         //-----------------------------------------------------------
@@ -171,6 +168,11 @@ namespace Falak
                 var variableName = identifier.AnchorToken.Lexeme;
                 if (VariablesTable.ContainsKey(variableName + "@" + scope))
                 {
+                    foreach (var entry in VariablesTable)
+                    {
+                        Console.WriteLine(entry);
+                    }
+                    Console.WriteLine(scope);
                     throw new SemanticError(
                         "The variable " + variableName + " has already been declared", identifier.AnchorToken
                     );
@@ -193,7 +195,7 @@ namespace Falak
         public void Visit(Assignment node)
         {
             var varName = node[0].AnchorToken.Lexeme;
-            if (!VariablesTable.ContainsKey(varName + "@" + scope))
+            if (!VariablesTable.ContainsKey(varName + "@" + scope) && !VariablesTable.ContainsKey(varName + "@"))
             {
                 foreach (var variable in VariablesTable)
                 {
@@ -216,7 +218,7 @@ namespace Falak
         }
         public void Visit(Identifier node)
         {
-            if (node is Identifier && !VariablesTable.ContainsKey(node.AnchorToken.Lexeme + "@" + scope))
+            if (node is Identifier && (!VariablesTable.ContainsKey(node.AnchorToken.Lexeme + "@" + scope) && !VariablesTable.ContainsKey(node.AnchorToken.Lexeme + "@")))
             {
                 throw new SemanticError("unrecognized identifier: " + node.AnchorToken.Lexeme, node.AnchorToken);
             }

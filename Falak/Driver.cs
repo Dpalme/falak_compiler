@@ -114,12 +114,14 @@ namespace Falak
 
 
             }
-            catch (FileNotFoundException e)
+            catch (Exception e)
             {
                 if (e is FileNotFoundException || e is SyntaxError || e is SemanticError)
                 {
                     Console.Error.WriteLine(e.Message);
                     Environment.Exit(1);
+                } else {
+                    Console.Error.WriteLine(e.ToString());
                 }
 
             }

@@ -214,6 +214,13 @@ namespace Falak
         {
             VisitChildren(node);
         }
+        public void Visit(Identifier node)
+        {
+            if (node is Identifier && !VariablesTable.ContainsKey(node.AnchorToken.Lexeme + "@" + scope))
+            {
+                throw new SemanticError("unrecognized identifier: " + node.AnchorToken.Lexeme, node.AnchorToken);
+            }
+        }
         // ---------------------------------------------------------
         public void Visit(IntLiteral node)
         {
@@ -248,10 +255,10 @@ namespace Falak
 
         public void Visit(Break node)
         {
-            if (depth == 0)
+            if (depth < 2)
             {
                 throw new SemanticError(
-                    "Break cannot be used outside a loop.", node.AnchorToken
+                    "the break keyword is reserved for while loops.", node.AnchorToken
                 );
             }
         }
@@ -268,12 +275,6 @@ namespace Falak
                     node.AnchorToken);
             }
 
-            if ((node[1] is IntLiteral) && value == 0)
-            {
-                throw new SemanticError(
-                    "Cannot divide by 0", node.AnchorToken
-                );
-            }
             VisitChildren(node);
         }
 

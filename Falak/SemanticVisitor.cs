@@ -25,14 +25,14 @@ using System.Collections.Generic;
 
 namespace Falak
 {
-    class FunctionRecord
+    class FunctionRegister
     {
         public string name;
         public Boolean isPrimitive;
         public int arity;
         public HashSet<string> value;
 
-        public FunctionRecord(string name, Boolean isPrimitive, int arity, HashSet<string> value)
+        public FunctionRegister(string name, Boolean isPrimitive, int arity, HashSet<string> value)
         {
             this.name = name;
             this.isPrimitive = isPrimitive;
@@ -47,7 +47,7 @@ namespace Falak
             get;
             set;
         }
-        public IDictionary<string, FunctionRecord> TableFunctions
+        public IDictionary<string, FunctionRegister> TableFunctions
         {
             get;
             set;
@@ -56,19 +56,19 @@ namespace Falak
         public SemanticVisitor()
         {
             TableVariables = new HashSet<string>();
-            TableFunctions = new SortedDictionary<string, FunctionRecord>();
+            TableFunctions = new SortedDictionary<string, FunctionRegister>();
 
-            TableFunctions.Add("printi", new FunctionRecord("printi", true, 1, null));
-            TableFunctions.Add("printc", new FunctionRecord("printc", true, 1, null));
-            TableFunctions.Add("prints", new FunctionRecord("prints", true, 1, null));
-            TableFunctions.Add("println", new FunctionRecord("println", true, 0, null));
-            TableFunctions.Add("readi", new FunctionRecord("readi", true, 0, null));
-            TableFunctions.Add("reads", new FunctionRecord("reads", true, 0, null));
-            TableFunctions.Add("new", new FunctionRecord("new", true, 1, null));
-            TableFunctions.Add("size", new FunctionRecord("size", true, 1, null));
-            TableFunctions.Add("add", new FunctionRecord("add", true, 2, null));
-            TableFunctions.Add("get", new FunctionRecord("get", true, 2, null));
-            TableFunctions.Add("set", new FunctionRecord("set", true, 3, null));
+            TableFunctions.Add("printi", new FunctionRegister("printi", true, 1, null));
+            TableFunctions.Add("printc", new FunctionRegister("printc", true, 1, null));
+            TableFunctions.Add("prints", new FunctionRegister("prints", true, 1, null));
+            TableFunctions.Add("println", new FunctionRegister("println", true, 0, null));
+            TableFunctions.Add("readi", new FunctionRegister("readi", true, 0, null));
+            TableFunctions.Add("reads", new FunctionRegister("reads", true, 0, null));
+            TableFunctions.Add("new", new FunctionRegister("new", true, 1, null));
+            TableFunctions.Add("size", new FunctionRegister("size", true, 1, null));
+            TableFunctions.Add("add", new FunctionRegister("add", true, 2, null));
+            TableFunctions.Add("get", new FunctionRegister("get", true, 2, null));
+            TableFunctions.Add("set", new FunctionRegister("set", true, 3, null));
         }
         //-----------------------------------------------------------
 
@@ -132,7 +132,7 @@ namespace Falak
             }
             else
             {
-                TableFunctions.Add(functionName, new FunctionRecord(functionName, false, arity, new HashSet<string>()));
+                TableFunctions.Add(functionName, new FunctionRegister(functionName, false, arity, new HashSet<string>()));
             }
         }
     }
@@ -149,7 +149,7 @@ namespace Falak
         }
         //-----------------------------------------------------------
 
-        public IDictionary<string, FunctionRecord> TableFunctions
+        public IDictionary<string, FunctionRegister> TableFunctions
         {
             get;
             set;
@@ -160,7 +160,7 @@ namespace Falak
         string inFunction = null;
         //-----------------------------------------------------------
 
-        public SecondSemanticVisitor(HashSet<string> tableVariables, IDictionary<string, FunctionRecord> tableFunctions)
+        public SecondSemanticVisitor(HashSet<string> tableVariables, IDictionary<string, FunctionRegister> tableFunctions)
         {
             this.TableVariables = tableVariables;
             this.TableFunctions = tableFunctions;

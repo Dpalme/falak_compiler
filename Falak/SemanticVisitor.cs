@@ -82,7 +82,7 @@ namespace Falak
         {
             foreach (var child in node)
             {
-                Visit((dynamic) child);
+                Visit((dynamic)child);
             }
         }
         //-----------------------------------------------------------
@@ -139,7 +139,7 @@ namespace Falak
 
     //-------------------------SECOND SEMANTIC VISITOR---------------------------------------------
 
-    class SecondSemantiVisitor
+    class SecondSemanticVisitor
     {
 
         public HashSet<string> TableVariables
@@ -157,6 +157,7 @@ namespace Falak
         //-----------------------------------------------------------
 
         int depth = 0;
+        string inFunction = null;
         //-----------------------------------------------------------
 
         public SecondSemanticVisitor(HashSet<string> tableVariables, IDictionary<string, FunctionRecord> tableFunctions)
@@ -180,22 +181,92 @@ namespace Falak
 
         public void Visit(Program node)
         {
-            Visit((dynamic)node[0]);
+            Visit((dynamic) node[0]);
         }
         //-----------------------------------------------------------
 
+        public void Visit(Assignment node)
+        {
+            var localTable = TableFunctions[inFunction].value;
+            var variableName = node[0].AnchorToken.Lexeme;
+            if (!localTable.Contains(variableName))
+            {
+                if (!TableVariables.Contains(variableName))
+                {
+                    throw new SemanticError("Undeclared variable: " + variableName, node[0].AnchorToken);
+                }
+            }
+            VisitChildren(node);
+        }
+
+        public void Visit(FunCall node)
+        {
+            var functionName = node.AnchorToken.Lexeme;
+            if (TableFunctions.ContainsKey(functionName))
+            {
+                var arity = node[0].ChildrenLength;
+                var expectedArity = TableFunctions[functionName].arity;
+                if (arity == expectedArity){
+
+                }
+                else{
+                    throw new SemanticError(functionName + " expects " + expectedArity + " argument(s), recieved " + arity, node.AnchorToken);
+                }
+            } else{
+                throw new SemanticError("Undeclared Function: " + functionName, node.AnchorToken);
+            }
+            VisitChildren(node);
+        }
 
 
-        /* TODO:
+        public void Visit(VarDefList node)
+        {
+            var localTable = TableFunctions[inFunction].value;
+            foreach (var varDef in node)
+            {
+                var idList = varDef[0];
+                foreach (var identifier in idList)
+                {
+                    var varName = identifier.AnchorToken.Lexeme;
+                    if (localTable.Contains(varName))
+                    {
+                        throw new SemanticError("Double Variable: " + varName, identifier.AnchorToken);
+                    }
+                    else
+                    {
+                        localTable.Add(varName);
+                    }
+                }
+            }
+        }
 
-        FUNCALL
-        ASSIGNMENT
-        PARAM_LIST
-        VAR_DEF_LIST ? 
-        FUNCTION
+        public void Visit(ParamList node)
+        {
+            var localTable = TableFunctions[inFunction].value;
+            if (node.ChildrenLength > 0)
+            {
+                foreach (var param in node[0])
+                {
+                    var paramName = param.AnchorToken.Lexeme;
+                    if (localTable.Contains(paramName))
+                    {
+                        throw new SemanticError("Doble Variable: " + paramName + param.AnchorToken);
+                    }
+                    else
+                    {
+                        localTable.Add(paramName);
+                    }
+                }
+            }
+        }
 
-
-         */
+        public void Visit(Function node)
+        {
+            var functionName = node.AnchorToken.Lexeme;
+            inFunction = functionName;
+            VisitChildren(node);
+            inFunction = null;
+        }
 
 
         public void Visit(StatementList node)

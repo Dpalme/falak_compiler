@@ -32,6 +32,8 @@ namespace Falak {
     class Div: Node {}
     class Do: Node {}
     class Else: Node {}
+    class Expression: Node {}
+     class ExprList: Node {}
     class ElseIf: Node {}
     class ElseIfList: Node {}
     class Equals: Node {}
@@ -43,6 +45,7 @@ namespace Falak {
     class If: Node {}
     class Inc: Node {}
     class IntLiteral: Node {}
+    class IdList: Node {}
     class Less: Node {}
     class LessEqual: Node {}
     class More: Node {}
@@ -62,6 +65,7 @@ namespace Falak {
     class String: Node {}
     class True: Node {}
     class VarDef: Node {}
+    class VarDefList: Node {}
     class While: Node {}
 
 }

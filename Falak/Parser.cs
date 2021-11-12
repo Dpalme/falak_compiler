@@ -22,26 +22,15 @@
   Hector Ivan Aguirre Arteaga   A01169628
 
 /*
-<program>               -> <def-list> EOF
-
-<def-list>              -> <def>*
-
+<program>               -> <def>* EOF
 <def>                   -> <var-def>|<fun-def>
-
 <var-def>               -> "var" <var-list> ";"
-
 <var-list>              -> <id-list>
-
 <id-list>               -> <id> ("," <id>)*
-
 <fun-def>               -> <id> "(" <param-list> ")" "{" <var-def-list> <stmt-list> "}"
-
 <param-list>            -> <id-list>?
-
 <var-def-list>          -> <var-def>*
-
 <stmt-list>             -> <stmt>*
-
 <stmt>                  -> <stmt-assign>|<stmt-inc>|
 
 					        <stmt-dec>|<stmt-fun-call>|
@@ -53,65 +42,35 @@
 					        <stmt-return>|<stmt-empty>
 
 <stmt-assign>           -> <id> "=" <expr> ";"
-
 <stmt-incr>             -> "inc" <id> ";"
-
 <stmt-decr>             -> "dec" <id> ";"
-
 <stmt-fun-call>         -> <fun-call> ";"
-
 <fun-call>              -> <id> "(" <expr-list> ")"
-
 <expr-list>             -> <expr>? ("," <expr>)*
-
 <stmt-if>               -> "if" "(" <expr> ")" "{" <stmt-list> "}" <else-if-list> <else>
-
 <else-if-list>          -> ("elseif" "(" <expr> ")" "{" <stmt-list> "}")*
-
 <else>                  -> ("else" "{" <stmt-list> "}")?
-
 <stmt-while>            -> "while" "(" <expr> ")" "{" <stmt-list> "}"
-
 <stmt-do-while>         -> "do" "{" <stmt-list> "}" "while" "(" <expr> ")" ";"
-
 <stmt-break>            -> "break" ";"
-
 <stmt-return>           -> "return" <expr> ";"
-
 <stmt-empty>            -> ";"
-
 <expr>                  -> <expr-or>
-
-<expr-or>               -><expr-and> (<op-or> <expr-and>)*
-	
-<op-or>                 -> "||" | "^"
-	
-<expr-and>              -> <expr-comp> (&& <expr-comp>)*
-	
-<expr-comp>             -> <expr-rel> (<op-comp> <expr-rel>)*
-	
-<op-comp>               -> "=="|"!="
-	
-<expr-rel>	            -> <expr-add> (<op-rel> <exrp-add>)*
-	
-<op-rel>                -> "<" | "<="|">"|">="
-	
+<expr-or>               -><expr-and> (<op-or> <expr-and>)*	
+<op-or>                 -> "||" | "^"	
+<expr-and>              -> <expr-comp> (&& <expr-comp>)*	
+<expr-comp>             -> <expr-rel> (<op-comp> <expr-rel>)*	
+<op-comp>               -> "=="|"!="	
+<expr-rel>	            -> <expr-add> (<op-rel> <exrp-add>)*	
+<op-rel>                -> "<" | "<="|">"|">="	
 <expr-add>              -> <expr-mul> (<op-add> <expr-mul>)*
-
-<op-add>                -> "+"|"-"
-	
-<expr-mul>              -> <expr-unary> (<op-mul> <expr-unary>)*
-	
-<op-mul>                -> "*"|"/"|"%"
-	
-<expr-unary>            -> <op-unary> <expr-unary> | <expr-primary>
-	
-<op-unary>              -> "+"|"-"|"!"
-	
-<expr-primary>          -> <id>|<fun-call>|<array>|<lit>| "(" <expr> ")"
-	
+<op-add>                -> "+"|"-"	
+<expr-mul>              -> <expr-unary> (<op-mul> <expr-unary>)*	
+<op-mul>                -> "*"|"/"|"%"	
+<expr-unary>            -> <op-unary> <expr-unary> | <expr-primary>	
+<op-unary>              -> "+"|"-"|"!"	
+<expr-primary>          -> <id>|<fun-call>|<array>|<lit>| "(" <expr> ")"	
 <array>                 -> "[" <expr-list> "]"
-
 <lit>                   -> <lit-bool>|<lit-int>|<lit-char>|<lit-str>
 
 */
@@ -222,6 +181,20 @@ namespace Falak
                 TokenCategory.TRUE,
             };
 
+        static readonly ISet<TokenCategory> firstOfExpression =
+        new HashSet<TokenCategory>() {
+                TokenCategory.IDENTIFIER,
+                TokenCategory.INT_LITERAL,
+                TokenCategory.CHARACTER,
+                TokenCategory.STRING,
+                TokenCategory.PAR_LEFT,
+                TokenCategory.CURL_LEFT,
+                TokenCategory.NEG,
+                TokenCategory.PLUS,
+                TokenCategory.NOT,
+                TokenCategory.TRUE,
+                TokenCategory.FALSE
+        };
 
         IEnumerator<Token> tokenStream;
 
@@ -255,23 +228,13 @@ namespace Falak
 
         public Node Program()
         {
-            var program = new Program() {
-                DefinitionList()
-            };
-            Expect(TokenCategory.EOF);
-            return program;
-        }
-
-
-        public Node DefinitionList()
-        {
             var declList = new DeclarationList();
-
             while (firstOfDeclaration.Contains(CurrentToken))
             {
                 declList.Add(Definition());
             }
-            return declList;
+            Expect(TokenCategory.EOF);
+            return new Program() { declList };
         }
 
 
@@ -294,57 +257,23 @@ namespace Falak
 
         public Node VarDef()
         {
-            if (CurrentToken == TokenCategory.VAR)
-            {
-                Expect(TokenCategory.VAR);
-            }
-            else
-            {
-                return new VarDef();
-            }
-            var result = VarList();
+            var result = new VarDef() { AnchorToken = Expect(TokenCategory.VAR) };
+            var idList = IdList();
+            result.Add(idList);
             Expect(TokenCategory.END);
             return result;
         }
 
-
-
-        public Node VarList()
+        public IdList IdList()
         {
-            Node varList = new VarDef();
-            foreach (Node node in IdList())
-            {
-                varList.Add(node);
-            }
-            return varList;
-        }
-
-
-        public List<Node> IdList()
-        {
-            var idList = new List<Node>();
-            if (CurrentToken == TokenCategory.IDENTIFIER)
-            {
-                idList.Add(
-                    new Identifier()
-                    {
-                        AnchorToken = Expect(TokenCategory.IDENTIFIER)
-                    }
-                );
-            }
-            else
-            {
-                return idList;
-            }
+            var idList = new IdList();
+            var id = new Identifier() { AnchorToken = Expect(TokenCategory.IDENTIFIER) };
+            idList.Add(id);
             while (CurrentToken == TokenCategory.COMMA)
             {
                 Expect(TokenCategory.COMMA);
-                idList.Add(
-                    new Identifier()
-                    {
-                        AnchorToken = Expect(TokenCategory.IDENTIFIER)
-                    }
-                );
+                id = new Identifier() { AnchorToken = Expect(TokenCategory.IDENTIFIER) };
+                idList.Add(id);
             }
             return idList;
         }
@@ -355,18 +284,32 @@ namespace Falak
             var functionToken = Expect(TokenCategory.IDENTIFIER);
             Expect(TokenCategory.PAR_LEFT);
             var paramList = new ParamList();
-            foreach (Node id in IdList())
+            if (CurrentToken == TokenCategory.IDENTIFIER)
             {
-                paramList.Add(id);
-            };
+                paramList.Add(IdList());
+            }
             Expect(TokenCategory.PAR_RIGHT);
             Expect(TokenCategory.CURL_LEFT);
-            var varDefList = VarDef();
+            var varDefList = VarDefList();
             Node stmtList = StmtList();
+            while (firstOfStatement.Contains(CurrentToken))
+            {
+                stmtList.Add(Statement());
+            }
             var function = new Function() { paramList, varDefList, stmtList };
             function.AnchorToken = functionToken;
             Expect(TokenCategory.CURL_RIGHT);
             return function;
+        }
+
+        public Node VarDefList()
+        {
+            var varDefList = new VarDefList();
+            while (CurrentToken == TokenCategory.VAR)
+            {
+                varDefList.Add(VarDef());
+            }
+            return varDefList;
         }
 
         public Node StmtList()
@@ -384,7 +327,16 @@ namespace Falak
             switch (CurrentToken)
             {
                 case TokenCategory.IDENTIFIER:
-                    return StatementStartId();
+                    var idToken = Expect(TokenCategory.IDENTIFIER);
+                    switch (CurrentToken)
+                    {
+                        case TokenCategory.ASSIGN:
+                            return StatementAssign(idToken);
+                        case (TokenCategory.PAR_LEFT):
+                            return StatementFunCall(idToken);
+                        default:
+                            throw new SyntaxError(firstOfAfterIdentifier, tokenStream.Current);
+                    }
 
                 case TokenCategory.INC:
                     return StatementInc();
@@ -412,29 +364,6 @@ namespace Falak
 
                 default:
                     throw new SyntaxError(firstOfStatement,
-                                          tokenStream.Current);
-            }
-        }
-
-        public Node StatementStartId()
-        {
-            switch (CurrentToken)
-            {
-                case TokenCategory.IDENTIFIER:
-                    var idToken = Expect(TokenCategory.IDENTIFIER);
-                    switch (CurrentToken)
-                    {
-                        case TokenCategory.ASSIGN:
-                            return StatementAssign(idToken);
-
-                        case TokenCategory.PAR_LEFT:
-                            return StatementFunCall(idToken);
-                        default:
-                            throw new SyntaxError(firstOfAfterIdentifier,
-                                                  tokenStream.Current);
-                    }
-                default:
-                    throw new SyntaxError(firstOfAfterIdentifier,
                                           tokenStream.Current);
             }
         }
@@ -476,13 +405,8 @@ namespace Falak
 
         public Node FunCall()
         {
-            var result = new FunCall();
             Expect(TokenCategory.PAR_LEFT);
-            foreach (Node node in ExprList())
-            {
-                result.Add(node);
-            }
-
+            var result = ExprList();
             Expect(TokenCategory.PAR_RIGHT);
             return result;
         }
@@ -618,19 +542,21 @@ namespace Falak
             };
         }
 
-        public List<Node> ExprList()
+        public Node ExprList()
         {
-            List<Node> exprList = new List<Node>();
-            if (firstOfExprUnary.Contains(CurrentToken) || firstOfPrimaryExpression.Contains(CurrentToken) || firstOfUnaryOperator.Contains(CurrentToken))
+            var result = new ExprList();
+            if (firstOfExpression.Contains(CurrentToken))
             {
-                exprList.Add(Expression());
+                var expr = Expression();
+                result.Add(expr);
                 while (TokenCategory.COMMA == CurrentToken)
                 {
                     Expect(TokenCategory.COMMA);
-                    exprList.Add(Expression());
+                    expr = Expression();
+                    result.Add(expr);
                 }
             }
-            return exprList;
+            return result;
         }
 
         public Node Expression()

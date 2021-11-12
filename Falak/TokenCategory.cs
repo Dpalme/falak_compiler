@@ -68,6 +68,12 @@ namespace Falak
         COMMA,
         DIV,
         MOD,
+         OTHER,
+         COMMENT,
+         NEW_LINE,
+         WHITESPACE,
+         THEN,
+         PRINT,
         ARRAY_RIGHT
     }
 }

@@ -4,6 +4,7 @@
 #>
 
 # Inverts in-place the contents of an array list.
+
 reverse(array) {
     var start, finish, temp;
     start = 0;

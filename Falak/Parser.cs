@@ -257,10 +257,11 @@ namespace Falak
 
         public Node VarDef()
         {
-            var result = new VarDef() { AnchorToken = Expect(TokenCategory.VAR) };
-            var idList = IdList();
-            result.Add(idList);
-            Expect(TokenCategory.END);
+            var result = new VarDef();
+            foreach (var id in IdList())
+            {
+                result.Add(id);
+            }
             return result;
         }
 
@@ -305,9 +306,18 @@ namespace Falak
         public Node VarDefList()
         {
             var varDefList = new VarDefList();
-            while (CurrentToken == TokenCategory.VAR)
+            if (CurrentToken == TokenCategory.VAR)
             {
-                varDefList.Add(VarDef());
+                Expect(TokenCategory.VAR);
+                var ids = VarDef();
+                if (ids.ChildrenLength > 0)
+                {
+                    foreach (var id in ids)
+                    {
+                        varDefList.Add(id);
+                    }
+                }
+                Expect(TokenCategory.END);
             }
             return varDefList;
         }
@@ -333,7 +343,12 @@ namespace Falak
                         case TokenCategory.ASSIGN:
                             return StatementAssign(idToken);
                         case (TokenCategory.PAR_LEFT):
-                            return StatementFunCall(idToken);
+                            var funNode = new FunCall() { AnchorToken = idToken };
+                            foreach (var arg in StatementFunCall())
+                            {
+                                funNode.Add(arg);
+                            }
+                            return funNode;
                         default:
                             throw new SyntaxError(firstOfAfterIdentifier, tokenStream.Current);
                     }
@@ -370,10 +385,9 @@ namespace Falak
 
         public Node StatementAssign(Token idToken)
         {
-            var assignToken = Expect(TokenCategory.ASSIGN);
+            Expect(TokenCategory.ASSIGN);
             var expr = Expression();
-            var result = new Assignment() { AnchorToken = assignToken };
-            result.Add(new Identifier() { AnchorToken = idToken });
+            var result = new Assignment() { AnchorToken = idToken };
             result.Add(expr);
             Expect(TokenCategory.END);
             return result;
@@ -395,11 +409,10 @@ namespace Falak
             return result;
         }
 
-        public Node StatementFunCall(Token idToken)
+        public Node StatementFunCall()
         {
             var result = FunCall();
             Expect(TokenCategory.END);
-            result.AnchorToken = idToken;
             return result;
         }
 
@@ -547,13 +560,11 @@ namespace Falak
             var result = new ExprList();
             if (firstOfExpression.Contains(CurrentToken))
             {
-                var expr = Expression();
-                result.Add(expr);
+                result.Add(Expression());
                 while (TokenCategory.COMMA == CurrentToken)
                 {
                     Expect(TokenCategory.COMMA);
-                    expr = Expression();
-                    result.Add(expr);
+                    result.Add(Expression());
                 }
             }
             return result;

@@ -92,27 +92,42 @@ namespace Falak
                 var parser = new Parser(
                     new Scanner(input).Scan().GetEnumerator());
                 var program = parser.Program();
+                Console.WriteLine(program.ToStringTree());
                 Console.WriteLine("Syntax Ok");
 
                 var semantic = new SemanticVisitor();
-                semantic.Visit((dynamic) program);
+                semantic.Visit((dynamic)program);
                 var semantic2 = new SecondSemanticVisitor(semantic.TableVariables, semantic.TableFunctions);
-                semantic2.Visit((dynamic) program);
+                semantic2.Visit((dynamic)program);
                 Console.WriteLine("Semantics OK");
-                
+
                 Console.WriteLine();
-                Console.WriteLine("Symbol Table");
+                Console.WriteLine("Global Variables");
                 Console.WriteLine("============");
                 foreach (var entry in semantic.TableVariables)
                 {
                     Console.WriteLine(entry);
                 }
+                Console.WriteLine();
+                Console.WriteLine("Functions");
+                Console.WriteLine("============");
                 foreach (var entry in semantic.TableFunctions)
                 {
-                    Console.WriteLine(entry);
+                    if (!entry.Value.isPrimitive)
+                    {
+                        Console.WriteLine(entry);
+                    }
                 }
+
+                var codeGenerator = new WatVisitor(semantic.TableVariables, semantic.TableFunctions);
+                File.WriteAllText(
+                    outputPath,
+                    codeGenerator.Visit((dynamic)program));
+                Console.WriteLine(
+                    "Created Wat (WebAssembly text format) file "
+                    + $"'{outputPath}'.");
             }
-            catch (Exception e)
+            catch (FileNotFoundException e)
             {
                 if (e is FileNotFoundException || e is SyntaxError || e is SemanticError)
                 {

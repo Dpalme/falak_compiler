@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Text;
 using System.Collections.Generic;
 
 namespace Falak
@@ -38,6 +39,18 @@ namespace Falak
             this.isPrimitive = isPrimitive;
             this.arity = arity;
             this.value = value;
+        }
+
+        override public string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append($"{this.name}: {this.isPrimitive}, {this.arity}, [");
+            foreach (var variable in this.value)
+            {
+                sb.Append($"{variable}, ");
+            }
+            sb.Append("]");
+            return sb.ToString();
         }
     }
     class SemanticVisitor
@@ -181,20 +194,15 @@ namespace Falak
 
         public void Visit(Program node)
         {
-            Visit((dynamic) node[0]);
+            Visit((dynamic)node[0]);
         }
         //-----------------------------------------------------------
 
         public void Visit(Assignment node)
         {
-            var localTable = TableFunctions[inFunction].value;
-            var variableName = node[0].AnchorToken.Lexeme;
-            if (!localTable.Contains(variableName))
+            if (TableVariables.Contains(node.AnchorToken.Lexeme))
             {
-                if (!TableVariables.Contains(variableName))
-                {
-                    throw new SemanticError("Undeclared variable: " + variableName, node[0].AnchorToken);
-                }
+                throw new SemanticError("Undeclared variable: " + node.AnchorToken.Lexeme, node.AnchorToken);
             }
             VisitChildren(node);
         }
@@ -204,15 +212,19 @@ namespace Falak
             var functionName = node.AnchorToken.Lexeme;
             if (TableFunctions.ContainsKey(functionName))
             {
-                var arity = node[0].ChildrenLength;
+                var arity = node.ChildrenLength;
                 var expectedArity = TableFunctions[functionName].arity;
-                if (arity == expectedArity){
+                if (arity == expectedArity)
+                {
 
                 }
-                else{
+                else
+                {
                     throw new SemanticError(functionName + " expects " + expectedArity + " argument(s), recieved " + arity, node.AnchorToken);
                 }
-            } else{
+            }
+            else
+            {
                 throw new SemanticError("Undeclared Function: " + functionName, node.AnchorToken);
             }
             VisitChildren(node);
@@ -222,20 +234,16 @@ namespace Falak
         public void Visit(VarDefList node)
         {
             var localTable = TableFunctions[inFunction].value;
-            foreach (var varDef in node)
+            foreach (var identifier in node)
             {
-                var idList = varDef[0];
-                foreach (var identifier in idList)
+                var varName = identifier.AnchorToken.Lexeme;
+                if (localTable.Contains(varName))
                 {
-                    var varName = identifier.AnchorToken.Lexeme;
-                    if (localTable.Contains(varName))
-                    {
-                        throw new SemanticError("Double Variable: " + varName, identifier.AnchorToken);
-                    }
-                    else
-                    {
-                        localTable.Add(varName);
-                    }
+                    throw new SemanticError("Double Variable: " + varName, identifier.AnchorToken);
+                }
+                else
+                {
+                    localTable.Add(varName);
                 }
             }
         }

@@ -1,0 +1,6 @@
+main () {
+    var a, b;
+    a = 4;
+    printi(a);
+    return a;
+}

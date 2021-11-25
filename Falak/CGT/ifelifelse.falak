@@ -1,0 +1,9 @@
+function main () {
+    if (3-3) {
+        printi(0);
+    } else if (3+3) {
+        printi(1);
+    } else {
+        printi(0);
+    }
+}

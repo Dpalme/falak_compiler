@@ -1,5 +1,5 @@
-
-Falak/falak.exe
-
+*.exe
 Falak/output.txt
-Falak/Falak_0_2_team_6.zip
+*.zip
+*.wat
+__pycache__

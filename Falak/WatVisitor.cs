@@ -134,8 +134,8 @@ namespace Falak
             var label1 = GenerateLabel();
             var label2 = GenerateLabel();
             var sb = new StringBuilder();
-            sb.Append($"  block ${label1}:\n");
-            sb.Append($"    loop ${label2}:\n");
+            sb.Append($"  block {label1}\n");
+            sb.Append($"    loop {label2}\n");
             sb.Append(Visit((dynamic)node[0]));
             sb.Append("      i32.eqz\n");
             sb.Append($"      br_if {label1}\n");
@@ -148,7 +148,7 @@ namespace Falak
 
         public string Visit(Return node)
         {
-            return "\n" + Visit((dynamic)node[0]);
+            return "\ndrop\n" + Visit((dynamic)node[0]);
         }
 
         public string Visit(Function node)
@@ -165,6 +165,7 @@ namespace Falak
             {
                 sb.Append($"    (local ${variable.AnchorToken.Lexeme} i32)\n");
             }
+            sb.Append($"    i32.const 0\n");
             sb.Append("\n" + Visit((dynamic)node[2]));
             sb.Append("  )\n");
             return sb.ToString();
@@ -172,7 +173,7 @@ namespace Falak
 
         public string Visit(FunCall node)
         {
-            return Visit((dynamic)node[0])
+            return VisitChildren(node)
                   + $"    call ${node.AnchorToken.Lexeme}\n"
                   + $"    drop\n";
         }
@@ -194,6 +195,28 @@ namespace Falak
             {
                 sb.Append(
                       $"    i32.const {code}\n"
+                    + "    call $add\n"
+                    + "    drop\n"
+                );
+            }
+            return sb.ToString();
+        }
+
+        public string Visit(Array node)
+        {
+            var sb = new StringBuilder();
+            sb.Append(
+                   "    i32.const 0\n"
+                 + "    call $new\n"
+                 + "    local.set $_temp\n\n"
+                 );
+            for (var i = 0; i <= node.ChildrenLength; i++)
+            {
+                sb.Append("    local.get $_temp\n");
+            }
+            foreach (var value in node)
+            {
+                sb.Append(Visit((dynamic) value)
                     + "    call $add\n"
                     + "    drop\n"
                 );
@@ -238,10 +261,33 @@ namespace Falak
         //-----------------------------------------------------------
         public string Visit(If node)
         {
+            var elif = "";
+            if (node[2].ChildrenLength > 0) {
+                elif = "    else\n" + Visit((dynamic) node[2]);
+            } else {
+                elif += "    else";
+            }
+            if (node[3].ChildrenLength > 0) {
+                elif += Visit((dynamic) node[3]);
+            } else {
+                elif += "      end\n";
+            }
+            for(var i = 0; i < node[2].ChildrenLength; i++){
+                elif += "    end\n";
+            }
             return Visit((dynamic)node[0])
                 + "    if\n"
                 + Visit((dynamic)node[1])
+                + elif
                 + "    end\n";
+        }
+
+        public string Visit(ElseIf node)
+        {
+            return Visit((dynamic)node[0])
+                + "    if\n"
+                + Visit((dynamic)node[1])
+                + "    else\n";
         }
 
         //-----------------------------------------------------------
@@ -292,6 +338,11 @@ namespace Falak
         public string Visit(Plus node)
         {
             return VisitBinaryOperator("i32.add", node);
+        }
+
+        public string Visit(Minus node)
+        {
+            return VisitBinaryOperator("i32.sub", node);
         }
 
         //-----------------------------------------------------------

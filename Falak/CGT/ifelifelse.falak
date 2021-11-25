@@ -1,9 +1,11 @@
-function main () {
+main () {
     if (3-3) {
         printi(0);
-    } else if (3+3) {
-        printi(1);
-    } else {
+    } elseif (3-3) {
         printi(0);
+    } elseif (3) {
+        printi(10);
+    } else {
+        printi(1);
     }
 }

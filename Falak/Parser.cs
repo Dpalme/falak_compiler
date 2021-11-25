@@ -287,7 +287,10 @@ namespace Falak
             var paramList = new ParamList();
             if (CurrentToken == TokenCategory.IDENTIFIER)
             {
-                paramList.Add(IdList());
+                foreach (var id in IdList())
+                {
+                    paramList.Add(id);
+                }
             }
             Expect(TokenCategory.PAR_RIGHT);
             Expect(TokenCategory.CURL_LEFT);

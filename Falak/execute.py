@@ -21,7 +21,7 @@
     Hector Ivan Aguirre Arteaga   A01169628
 '''
 
-from sys import argv, stderr, exit, stdout
+from sys import argv, stderr, exit
 from wasmer import engine, Module, wat2wasm, Store, Instance
 from wasmer_compiler_cranelift import Compiler
 from falaklib import make_import_object

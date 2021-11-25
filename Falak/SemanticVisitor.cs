@@ -136,7 +136,7 @@ namespace Falak
             var arity = 0;
             if (node[0].ChildrenLength > 0)
             {
-                arity = node[0][0].ChildrenLength;
+                arity = node[0].ChildrenLength;
             }
             if (TableFunctions.ContainsKey(functionName))
             {

@@ -32,14 +32,15 @@ namespace Falak
     public class Driver
     {
 
-        const string VERSION = "0.3";
+        const string VERSION = "0.5";
 
         //-----------------------------------------------------------
         static readonly string[] ReleaseIncludes = {
             "Lexical analysis",
             "Syntactic analysis",
             "AST Construction",
-            "Semantic Analysis"
+            "Semantic Analysis",
+            "Wat code generation"
         };
 
         //-----------------------------------------------------------
@@ -85,16 +86,20 @@ namespace Falak
             try
             {
                 var inputPath = args[0];
+                var outputPath = Path.ChangeExtension(inputPath, ".wat");
                 var input = File.ReadAllText(inputPath);
+
                 var parser = new Parser(
                     new Scanner(input).Scan().GetEnumerator());
                 var program = parser.Program();
                 Console.WriteLine("Syntax Ok");
+
                 var semantic = new SemanticVisitor();
                 semantic.Visit((dynamic) program);
                 var semantic2 = new SecondSemanticVisitor(semantic.TableVariables, semantic.TableFunctions);
                 semantic2.Visit((dynamic) program);
                 Console.WriteLine("Semantics OK");
+                
                 Console.WriteLine();
                 Console.WriteLine("Symbol Table");
                 Console.WriteLine("============");

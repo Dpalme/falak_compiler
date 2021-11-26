@@ -108,7 +108,6 @@ namespace Falak
             if (!TableFunctions.ContainsKey("main"))
             {
                 throw new SemanticError("No main function.");
-
             }
         }
         //-----------------------------------------------------------
@@ -116,8 +115,7 @@ namespace Falak
 
         public void Visit(VarDef node)
         {
-            var identifiers = node[0];
-            foreach (var identifier in identifiers)
+            foreach (var identifier in node)
             {
                 var variableName = identifier.AnchorToken.Lexeme;
                 if (TableVariables.Contains(variableName))
@@ -173,7 +171,7 @@ namespace Falak
         //-----------------------------------------------------------
 
         int depth = 0;
-        string inFunction = null;
+        string inFunction = "_none";
         //-----------------------------------------------------------
 
         public SecondSemanticVisitor(HashSet<string> tableVariables, IDictionary<string, FunctionRegister> tableFunctions)
@@ -203,7 +201,7 @@ namespace Falak
 
         public void Visit(Assignment node)
         {
-            if (TableVariables.Contains(node.AnchorToken.Lexeme))
+            if (!TableVariables.Contains(node.AnchorToken.Lexeme) && !TableFunctions[inFunction].value.Contains(node.AnchorToken.Lexeme))
             {
                 throw new SemanticError("Undeclared variable: " + node.AnchorToken.Lexeme, node.AnchorToken);
             }

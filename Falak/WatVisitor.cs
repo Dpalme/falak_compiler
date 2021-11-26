@@ -62,7 +62,7 @@ namespace Falak
                             i += 1;
                             break;
                         case 'u':
-                            result.Add(Convert.ToInt16(str.Substring(i + 2, i + 8), 16));
+                            result.Add(Convert.ToInt16(str.Substring(i + 2, 6), 16));
                             i += 7;
                             break;
                     }
@@ -289,8 +289,9 @@ namespace Falak
         //-----------------------------------------------------------
         public string Visit(Assignment node)
         {
+            string nameSpace = globals.Contains(node.AnchorToken.Lexeme) ? "global" : "local";
             return Visit((dynamic)node[0])
-                + $"    local.set ${node.AnchorToken.Lexeme}\n";
+                + $"    {nameSpace}.set ${node.AnchorToken.Lexeme}\n";
         }
 
         //-----------------------------------------------------------
@@ -336,7 +337,8 @@ namespace Falak
         //-----------------------------------------------------------
         public string Visit(Identifier node)
         {
-            return $"    local.get ${node.AnchorToken.Lexeme}\n";
+            string nameSpace = globals.Contains(node.AnchorToken.Lexeme) ? "global" : "local";
+            return $"    {nameSpace}.get ${node.AnchorToken.Lexeme}\n";
         }
 
         //-----------------------------------------------------------
@@ -387,7 +389,7 @@ namespace Falak
 
         public string Visit(Inc node)
         {
-            string nameSpace = globals.Contains(node.AnchorToken.Lexeme) ? "globals" : "local";
+            string nameSpace = globals.Contains(node.AnchorToken.Lexeme) ? "global" : "local";
             return $"    {nameSpace}.get ${node.AnchorToken.Lexeme}\n"
                 + "    i32.const 1\n"
                 + "    i32.add\n"
@@ -396,7 +398,7 @@ namespace Falak
 
         public string Visit(Dec node)
         {
-            string nameSpace = globals.Contains(node.AnchorToken.Lexeme) ? "globals" : "local";
+            string nameSpace = globals.Contains(node.AnchorToken.Lexeme) ? "global" : "local";
             return $"    {nameSpace}.get ${node.AnchorToken.Lexeme}\n"
                 + "    i32.const 1\n"
                 + "    i32.sub\n"
@@ -406,6 +408,7 @@ namespace Falak
         //-----------------------------------------------------------
         public string Visit(Plus node)
         {
+            if (node.ChildrenLength == 1) { return Visit((dynamic) node[0]); }
             return VisitBinaryOperator("i32.add", node);
         }
 
@@ -458,6 +461,11 @@ namespace Falak
         public string Visit(MoreEqual node)
         {
             return VisitBinaryOperator("i32.ge_s", node);
+        }
+
+        public string Visit(BitOr node)
+        {
+            return VisitBinaryOperator("i32.or", node);
         }
 
         //-----------------------------------------------------------

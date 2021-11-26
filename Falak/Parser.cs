@@ -258,10 +258,12 @@ namespace Falak
         public Node VarDef()
         {
             var result = new VarDef();
+            Expect(TokenCategory.VAR);
             foreach (var id in IdList())
             {
                 result.Add(id);
             }
+            Expect(TokenCategory.END);
             return result;
         }
 
@@ -307,16 +309,10 @@ namespace Falak
             var varDefList = new VarDefList();
             if (CurrentToken == TokenCategory.VAR)
             {
-                Expect(TokenCategory.VAR);
-                var ids = VarDef();
-                if (ids.ChildrenLength > 0)
+                foreach (var id in VarDef())
                 {
-                    foreach (var id in ids)
-                    {
-                        varDefList.Add(id);
-                    }
+                    varDefList.Add(id);
                 }
-                Expect(TokenCategory.END);
             }
             return varDefList;
         }
@@ -419,7 +415,8 @@ namespace Falak
         {
             Expect(TokenCategory.PAR_LEFT);
             var result = new FunCall();
-            foreach (var node in ExprList()) {
+            foreach (var node in ExprList())
+            {
                 result.Add(node);
             }
             Expect(TokenCategory.PAR_RIGHT);

@@ -84,6 +84,8 @@ namespace Falak
         {
             return string.Format("${0:00000}", labelCounter++);
         }
+
+        string breakTarget;
         HashSet<string> globals;
         IDictionary<string, FunctionRegister> functions;
 
@@ -131,18 +133,19 @@ namespace Falak
 
         public string Visit(While node)
         {
-            var label1 = GenerateLabel();
+            breakTarget = GenerateLabel();
             var label2 = GenerateLabel();
             var sb = new StringBuilder();
-            sb.Append($"  block {label1}\n");
+            sb.Append($"  block {breakTarget}\n");
             sb.Append($"    loop {label2}\n");
             sb.Append(Visit((dynamic)node[0]));
             sb.Append("      i32.eqz\n");
-            sb.Append($"      br_if {label1}\n");
+            sb.Append($"      br_if {breakTarget}\n");
             sb.Append(Visit((dynamic)node[1]));
             sb.Append($"      br {label2}\n");
             sb.Append("    end\n");
             sb.Append("  end\n");
+            breakTarget = "";
             return sb.ToString();
         }
 
@@ -288,6 +291,11 @@ namespace Falak
                 + "    if\n"
                 + Visit((dynamic)node[1])
                 + "    else\n";
+        }
+
+        public string Visit(Break node)
+        {
+            return $"    br {breakTarget}\n";
         }
 
         //-----------------------------------------------------------

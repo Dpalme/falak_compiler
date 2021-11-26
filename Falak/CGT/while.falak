@@ -1,0 +1,9 @@
+main () {
+    var i;
+    i = 3;
+    while (i) {
+        printi(i);
+        i = i-1;
+        break;
+    }
+}

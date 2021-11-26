@@ -32,13 +32,15 @@ namespace Falak
         public Boolean isPrimitive;
         public int arity;
         public HashSet<string> value;
+        public bool returns;
 
-        public FunctionRegister(string name, Boolean isPrimitive, int arity, HashSet<string> value)
+        public FunctionRegister(string name, Boolean isPrimitive, int arity, HashSet<string> value, bool returns)
         {
             this.name = name;
             this.isPrimitive = isPrimitive;
             this.arity = arity;
             this.value = value;
+            this.returns = returns;
         }
 
         override public string ToString()
@@ -50,6 +52,7 @@ namespace Falak
                 sb.Append($"{variable}, ");
             }
             sb.Append("]");
+            sb.Append($", {this.returns}");
             return sb.ToString();
         }
     }
@@ -71,17 +74,17 @@ namespace Falak
             TableVariables = new HashSet<string>();
             TableFunctions = new SortedDictionary<string, FunctionRegister>();
 
-            TableFunctions.Add("printi", new FunctionRegister("printi", true, 1, null));
-            TableFunctions.Add("printc", new FunctionRegister("printc", true, 1, null));
-            TableFunctions.Add("prints", new FunctionRegister("prints", true, 1, null));
-            TableFunctions.Add("println", new FunctionRegister("println", true, 0, null));
-            TableFunctions.Add("readi", new FunctionRegister("readi", true, 0, null));
-            TableFunctions.Add("reads", new FunctionRegister("reads", true, 0, null));
-            TableFunctions.Add("new", new FunctionRegister("new", true, 1, null));
-            TableFunctions.Add("size", new FunctionRegister("size", true, 1, null));
-            TableFunctions.Add("add", new FunctionRegister("add", true, 2, null));
-            TableFunctions.Add("get", new FunctionRegister("get", true, 2, null));
-            TableFunctions.Add("set", new FunctionRegister("set", true, 3, null));
+            TableFunctions.Add("printi", new FunctionRegister("printi", true, 1, null, false));
+            TableFunctions.Add("printc", new FunctionRegister("printc", true, 1, null, false));
+            TableFunctions.Add("prints", new FunctionRegister("prints", true, 1, null, false));
+            TableFunctions.Add("println", new FunctionRegister("println", true, 0, null, false));
+            TableFunctions.Add("readi", new FunctionRegister("readi", true, 0, null, true));
+            TableFunctions.Add("reads", new FunctionRegister("reads", true, 0, null, true));
+            TableFunctions.Add("new", new FunctionRegister("new", true, 1, null, true));
+            TableFunctions.Add("size", new FunctionRegister("size", true, 1, null, true));
+            TableFunctions.Add("add", new FunctionRegister("add", true, 2, null, false));
+            TableFunctions.Add("get", new FunctionRegister("get", true, 2, null, true));
+            TableFunctions.Add("set", new FunctionRegister("set", true, 3, null, false));
         }
         //-----------------------------------------------------------
 
@@ -145,7 +148,7 @@ namespace Falak
             }
             else
             {
-                TableFunctions.Add(functionName, new FunctionRegister(functionName, false, arity, new HashSet<string>()));
+                TableFunctions.Add(functionName, new FunctionRegister(functionName, false, arity, new HashSet<string>(), false));
             }
         }
     }
@@ -274,6 +277,12 @@ namespace Falak
             inFunction = functionName;
             VisitChildren(node);
             inFunction = null;
+        }
+
+        public void Visit(Return node)
+        {
+            TableFunctions[inFunction].returns = true;
+            VisitChildren(node);
         }
 
 

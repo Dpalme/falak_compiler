@@ -111,7 +111,7 @@ namespace Falak
                 Console.WriteLine();
                 Console.WriteLine("Functions");
                 Console.WriteLine("============");
-                foreach (var entry in semantic.TableFunctions)
+                foreach (var entry in semantic2.TableFunctions)
                 {
                     if (!entry.Value.isPrimitive)
                     {
@@ -119,7 +119,7 @@ namespace Falak
                     }
                 }
 
-                var codeGenerator = new WatVisitor(semantic.TableVariables, semantic.TableFunctions);
+                var codeGenerator = new WatVisitor(semantic.TableVariables, semantic2.TableFunctions);
                 File.WriteAllText(
                     outputPath,
                     codeGenerator.Visit((dynamic)program));

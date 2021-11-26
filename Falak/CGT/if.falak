@@ -1,5 +1,12 @@
-main () {
-    if (3 + 4) {
-        printi(1);
+test () {
+    if (3-2) {
+        return 1;
     }
+}
+
+main () {
+    var i;
+    i = 3;
+    i = i + test();
+    printi(i);
 }

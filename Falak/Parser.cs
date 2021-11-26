@@ -296,10 +296,6 @@ namespace Falak
             Expect(TokenCategory.CURL_LEFT);
             var varDefList = VarDefList();
             Node stmtList = StmtList();
-            while (firstOfStatement.Contains(CurrentToken))
-            {
-                stmtList.Add(Statement());
-            }
             var function = new Function() { paramList, varDefList, stmtList };
             function.AnchorToken = functionToken;
             Expect(TokenCategory.CURL_RIGHT);
@@ -345,7 +341,7 @@ namespace Falak
                     {
                         case TokenCategory.ASSIGN:
                             return StatementAssign(idToken);
-                        case (TokenCategory.PAR_LEFT):
+                        case TokenCategory.PAR_LEFT:
                             var funNode = new FunCall() { AnchorToken = idToken };
                             foreach (var arg in StatementFunCall())
                             {
@@ -398,16 +394,16 @@ namespace Falak
 
         public Node StatementInc()
         {
-            var result = new Inc() { AnchorToken = Expect(TokenCategory.INC) };
-            result.Add(new Identifier() { AnchorToken = Expect(TokenCategory.IDENTIFIER) });
+            Expect(TokenCategory.INC);
+            var result = new Inc() { AnchorToken = Expect(TokenCategory.IDENTIFIER) };
             Expect(TokenCategory.END);
             return result;
         }
 
         public Node StatementDec()
         {
-            var result = new Dec() { AnchorToken = Expect(TokenCategory.DEC) };
-            result.Add(new Identifier() { AnchorToken = Expect(TokenCategory.IDENTIFIER) });
+            Expect(TokenCategory.DEC);
+            var result = new Dec() { AnchorToken = Expect(TokenCategory.IDENTIFIER) };
             Expect(TokenCategory.END);
             return result;
         }
@@ -422,7 +418,10 @@ namespace Falak
         public Node FunCall()
         {
             Expect(TokenCategory.PAR_LEFT);
-            var result = ExprList();
+            var result = new FunCall();
+            foreach (var node in ExprList()) {
+                result.Add(node);
+            }
             Expect(TokenCategory.PAR_RIGHT);
             return result;
         }
@@ -458,10 +457,6 @@ namespace Falak
                 Expect(TokenCategory.PAR_RIGHT);
                 Expect(TokenCategory.CURL_LEFT);
                 var stmtList = StmtList();
-                while (firstOfStatement.Contains(CurrentToken))
-                {
-                    stmtList.Add(Statement());
-                }
                 Expect(TokenCategory.CURL_RIGHT);
                 var elseIf = new ElseIf() { expr, stmtList };
                 elseIf.AnchorToken = ifToken;
@@ -513,22 +508,15 @@ namespace Falak
         {
             var doToken = Expect(TokenCategory.DO);
             Expect(TokenCategory.CURL_LEFT);
-            var stmtList = new StatementList();
-            while (firstOfStatement.Contains(CurrentToken))
-            {
-                stmtList.Add(Statement());
-            }
-
+            var stmtList = StmtList();
             Expect(TokenCategory.CURL_RIGHT);
             Expect(TokenCategory.WHILE);
             Expect(TokenCategory.PAR_LEFT);
-
             var condition = Expression();
-
             Expect(TokenCategory.PAR_RIGHT);
             Expect(TokenCategory.END);
 
-            var result = new Do() { condition, stmtList };
+            var result = new Do() { stmtList, condition };
             result.AnchorToken = doToken;
 
             return result;

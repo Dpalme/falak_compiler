@@ -35,34 +35,35 @@ namespace Falak
             {
                 if (str[i] == '\\')
                 {
-                    switch(str[i+1]) {
+                    switch (str[i + 1])
+                    {
                         case 'n':
                             result.Add(10);
-                            i+=1;
+                            i += 1;
                             break;
                         case 'r':
                             result.Add(13);
-                            i+=1;
+                            i += 1;
                             break;
                         case 't':
                             result.Add(9);
-                            i+=1;
+                            i += 1;
                             break;
                         case '\\':
                             result.Add(92);
-                            i+=1;
+                            i += 1;
                             break;
                         case '\'':
                             result.Add(39);
-                            i+=1;
+                            i += 1;
                             break;
                         case '"':
                             result.Add(34);
-                            i+=1;
+                            i += 1;
                             break;
                         case 'u':
-                            result.Add(Convert.ToInt16(str.Substring(i+2, i + 8), 16));
-                            i+=7;
+                            result.Add(Convert.ToInt16(str.Substring(i + 2, i + 8), 16));
+                            i += 7;
                             break;
                     }
                 }
@@ -133,25 +134,46 @@ namespace Falak
 
         public string Visit(While node)
         {
+            var parent = breakTarget;
             breakTarget = GenerateLabel();
             var label2 = GenerateLabel();
             var sb = new StringBuilder();
             sb.Append($"  block {breakTarget}\n");
             sb.Append($"    loop {label2}\n");
             sb.Append(Visit((dynamic)node[0]));
-            sb.Append("      i32.eqz\n");
-            sb.Append($"      br_if {breakTarget}\n");
+            sb.Append( "    i32.eqz\n");
+            sb.Append($"    br_if {breakTarget}\n");
             sb.Append(Visit((dynamic)node[1]));
+            sb.Append($"    br {label2}\n");
+            sb.Append("    end\n");
+            sb.Append("  end\n");
+            breakTarget = parent;
+            return sb.ToString();
+        }
+
+        public string Visit(Do node)
+        {
+            var parent = breakTarget;
+            breakTarget = GenerateLabel();
+            var label2 = GenerateLabel();
+            var sb = new StringBuilder();
+            sb.Append($"  block {breakTarget}\n");
+            sb.Append($"    loop {label2}\n");
+            sb.Append(Visit((dynamic)node[0]));
+            sb.Append(Visit((dynamic)node[1]));
+            sb.Append( "      i32.eqz\n");
+            sb.Append($"      br_if {breakTarget}\n");
             sb.Append($"      br {label2}\n");
             sb.Append("    end\n");
             sb.Append("  end\n");
-            breakTarget = "";
+            breakTarget = parent;
             return sb.ToString();
         }
 
         public string Visit(Return node)
         {
-            return "\ndrop\n" + Visit((dynamic)node[0]);
+            return VisitChildren(node)
+                + "    return\n";
         }
 
         public string Visit(Function node)
@@ -168,17 +190,21 @@ namespace Falak
             {
                 sb.Append($"    (local ${variable.AnchorToken.Lexeme} i32)\n");
             }
-            sb.Append($"    i32.const 0\n");
             sb.Append("\n" + Visit((dynamic)node[2]));
+            sb.Append("    i32.const 0\n");
             sb.Append("  )\n");
             return sb.ToString();
         }
 
         public string Visit(FunCall node)
         {
-            return VisitChildren(node)
-                  + $"    call ${node.AnchorToken.Lexeme}\n"
-                  + $"    drop\n";
+            var sb = new StringBuilder();
+            sb.Append(VisitChildren(node));
+            sb.Append($"    call ${node.AnchorToken.Lexeme}\n");
+            if (!functions[node.AnchorToken.Lexeme].returns) {
+                sb.Append("    drop\n");
+            }
+            return sb.ToString();
         }
 
         public string Visit(String node)
@@ -205,6 +231,12 @@ namespace Falak
             return sb.ToString();
         }
 
+        public string Visit(Character node)
+        {
+            var codes = AsCodePoints(node.AnchorToken.Lexeme.Substring(1, node.AnchorToken.Lexeme.Length - 2));
+            return $"    i32.const {codes[0]}\n";
+        }
+
         public string Visit(Array node)
         {
             var sb = new StringBuilder();
@@ -219,7 +251,7 @@ namespace Falak
             }
             foreach (var value in node)
             {
-                sb.Append(Visit((dynamic) value)
+                sb.Append(Visit((dynamic)value)
                     + "    call $add\n"
                     + "    drop\n"
                 );
@@ -265,17 +297,20 @@ namespace Falak
         public string Visit(If node)
         {
             var elif = "";
-            if (node[2].ChildrenLength > 0) {
-                elif = "    else\n" + Visit((dynamic) node[2]);
-            } else {
-                elif += "    else";
+            if (node[2].ChildrenLength > 0)
+            {
+                elif = "    else\n" + Visit((dynamic)node[2]);
             }
-            if (node[3].ChildrenLength > 0) {
-                elif += Visit((dynamic) node[3]);
-            } else {
-                elif += "      end\n";
+            else
+            {
+                elif += "    else\n";
             }
-            for(var i = 0; i < node[2].ChildrenLength; i++){
+            if (node[3].ChildrenLength > 0)
+            {
+                elif += Visit((dynamic)node[3][0]);
+            }
+            for (var i = 0; i < node[2].ChildrenLength; i++)
+            {
                 elif += "    end\n";
             }
             return Visit((dynamic)node[0])
@@ -287,10 +322,10 @@ namespace Falak
 
         public string Visit(ElseIf node)
         {
-            return Visit((dynamic)node[0])
-                + "    if\n"
-                + Visit((dynamic)node[1])
-                + "    else\n";
+            return "  " + Visit((dynamic)node[0])
+                 + "      if\n"
+                 + "  " + Visit((dynamic)node[1])
+                 + "      else\n";
         }
 
         public string Visit(Break node)
@@ -330,16 +365,42 @@ namespace Falak
                 + "    i32.sub\n";
         }
 
+        public string Visit(Not node)
+        {
+            return Visit((dynamic)node[0])
+                +  "    i32.eqz\n";
+        }
+
         //-----------------------------------------------------------
         public string Visit(And node)
         {
+            // TODO
             return VisitBinaryOperator("i32.and", node);
         }
 
         //-----------------------------------------------------------
-        public string Visit(Less node)
+        public string Visit(Or node)
         {
-            return VisitBinaryOperator("i32.lt_s", node);
+            // TODO
+            return VisitBinaryOperator("i32.or", node);
+        }
+
+        public string Visit(Inc node)
+        {
+            string nameSpace = globals.Contains(node.AnchorToken.Lexeme) ? "globals" : "local";
+            return $"    {nameSpace}.get ${node.AnchorToken.Lexeme}\n"
+                + "    i32.const 1\n"
+                + "    i32.add\n"
+                + $"    {nameSpace}.set ${node.AnchorToken.Lexeme}\n";
+        }
+
+        public string Visit(Dec node)
+        {
+            string nameSpace = globals.Contains(node.AnchorToken.Lexeme) ? "globals" : "local";
+            return $"    {nameSpace}.get ${node.AnchorToken.Lexeme}\n"
+                + "    i32.const 1\n"
+                + "    i32.sub\n"
+                + $"    {nameSpace}.set ${node.AnchorToken.Lexeme}\n";
         }
 
         //-----------------------------------------------------------
@@ -359,6 +420,46 @@ namespace Falak
             return VisitBinaryOperator("i32.mul", node);
         }
 
+        public string Visit(Div node)
+        {
+            return VisitBinaryOperator("i32.div_s", node);
+        }
+
+        public string Visit(Remainder node)
+        {
+            return VisitBinaryOperator("i32.rem_s", node);
+        }
+
+        public string Visit(Equals node)
+        {
+            return VisitBinaryOperator("i32.eq", node);
+        }
+
+        public string Visit(NotEquals node)
+        {
+            return VisitBinaryOperator("i32.ne", node);
+        }
+
+        public string Visit(Less node)
+        {
+            return VisitBinaryOperator("i32.lt_s", node);
+        }
+
+        public string Visit(LessEqual node)
+        {
+            return VisitBinaryOperator("i32.le_s", node);
+        }
+
+        public string Visit(More node)
+        {
+            return VisitBinaryOperator("i32.gt_s", node);
+        }
+
+        public string Visit(MoreEqual node)
+        {
+            return VisitBinaryOperator("i32.ge_s", node);
+        }
+
         //-----------------------------------------------------------
         string VisitChildren(Node node)
         {
@@ -372,6 +473,7 @@ namespace Falak
 
         string Visit(Node node)
         {
+            Console.WriteLine(node.ToString());
             var sb = new StringBuilder();
             foreach (var n in node)
             {

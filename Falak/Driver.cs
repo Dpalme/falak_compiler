@@ -101,25 +101,25 @@ namespace Falak
                 semantic2.Visit((dynamic)program);
                 Console.WriteLine("Semantics OK");
 
-                Console.WriteLine();
-                Console.WriteLine("Global Variables");
-                Console.WriteLine("============");
-                foreach (var entry in semantic.TableVariables)
-                {
-                    Console.WriteLine(entry);
-                }
-                Console.WriteLine();
-                Console.WriteLine("Functions");
-                Console.WriteLine("============");
-                foreach (var entry in semantic2.TableFunctions)
-                {
-                    if (!entry.Value.isPrimitive)
-                    {
-                        Console.WriteLine(entry);
-                    }
-                }
+                // Console.WriteLine();
+                // Console.WriteLine("Global Variables");
+                // Console.WriteLine("============");
+                // foreach (var entry in semantic.TableVariables)
+                // {
+                //     Console.WriteLine(entry);
+                // }
+                // Console.WriteLine();
+                // Console.WriteLine("Functions");
+                // Console.WriteLine("============");
+                // foreach (var entry in semantic2.TableFunctions)
+                // {
+                //     if (!entry.Value.isPrimitive)
+                //     {
+                //         Console.WriteLine(entry);
+                //     }
+                // }
 
-                var codeGenerator = new WatVisitor(semantic.TableVariables, semantic2.TableFunctions);
+                var codeGenerator = new WatVisitor(semantic2.TableVariables, semantic2.TableFunctions);
                 File.WriteAllText(
                     outputPath,
                     codeGenerator.Visit((dynamic)program));
@@ -127,12 +127,14 @@ namespace Falak
                     "Created Wat (WebAssembly text format) file "
                     + $"'{outputPath}'.");
             }
-            catch (FileNotFoundException e)
+            catch (Exception e)
             {
                 if (e is FileNotFoundException || e is SyntaxError || e is SemanticError)
                 {
                     Console.Error.WriteLine(e.Message);
                     Environment.Exit(1);
+                } else {
+                    Console.Error.WriteLine(e.ToString());
                 }
 
             }

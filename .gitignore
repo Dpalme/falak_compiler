@@ -3,3 +3,4 @@ Falak/output.txt
 *.zip
 *.wat
 __pycache__
+Falak/runAll.bat

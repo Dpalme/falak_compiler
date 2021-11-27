@@ -1,0 +1,24 @@
+var fails;
+var asserts;
+
+assert(value1, value2, message) {
+    inc asserts;
+    if (value1 != value2) {
+        inc fails;
+        printi(1);
+    }
+}
+
+some_fun() {
+}
+
+main() {
+
+    fails = 0;
+    asserts = 0;
+
+    assert(0, some_fun(), 1);
+
+    printi(fails);
+    printi(asserts);
+}

@@ -45,15 +45,7 @@ namespace Falak
 
         override public string ToString()
         {
-            var sb = new StringBuilder();
-            sb.Append($"{this.name}: {this.isPrimitive}, {this.arity}, [");
-            foreach (var variable in this.value)
-            {
-                sb.Append($"{variable}, ");
-            }
-            sb.Append("]");
-            sb.Append($", {this.returns}");
-            return sb.ToString();
+            return $"{this.name}: {this.isPrimitive}, {this.arity}, [{string.Join(", ", this.value)}], {this.returns}";
         }
     }
     class SemanticVisitor
@@ -139,6 +131,10 @@ namespace Falak
             {
                 arity = node[0].ChildrenLength;
             }
+            var vars = new HashSet<string>();
+            foreach(var id in node[0]) {
+                vars.Add(id.AnchorToken.Lexeme);
+            }
             if (TableFunctions.ContainsKey(functionName))
             {
                 throw new SemanticError("Duplicated Function: " + functionName, node.AnchorToken);
@@ -146,7 +142,7 @@ namespace Falak
             }
             else
             {
-                TableFunctions.Add(functionName, new FunctionRegister(functionName, false, arity, new HashSet<string>(), false));
+                TableFunctions.Add(functionName, new FunctionRegister(functionName, false, arity, vars, true));
             }
         }
     }
@@ -234,17 +230,16 @@ namespace Falak
 
         public void Visit(VarDefList node)
         {
-            var localTable = TableFunctions[inFunction].value;
             foreach (var identifier in node)
             {
                 var varName = identifier.AnchorToken.Lexeme;
-                if (localTable.Contains(varName))
+                if (TableFunctions[inFunction].value.Contains(varName))
                 {
                     throw new SemanticError("Double Variable: " + varName, identifier.AnchorToken);
                 }
                 else
                 {
-                    localTable.Add(varName);
+                    TableFunctions[inFunction].value.Add(varName);
                 }
             }
         }
@@ -275,24 +270,6 @@ namespace Falak
             inFunction = functionName;
             VisitChildren(node);
             inFunction = null;
-        }
-
-        public void Visit(Return node)
-        {
-            TableFunctions[inFunction].returns = true;
-            VisitChildren(node);
-        }
-
-
-        public void Visit(StatementList node)
-        {
-            VisitChildren(node);
-        }
-        // ---------------------------------------------------------
-
-        public void Visit(DeclarationList node)
-        {
-            VisitChildren(node);
         }
         // ---------------------------------------------------------
         public void Visit(IntLiteral node)

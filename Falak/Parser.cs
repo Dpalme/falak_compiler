@@ -27,10 +27,9 @@
 <var-def>               -> "var" <var-list> ";"
 <var-list>              -> <id-list>
 <id-list>               -> <id> ("," <id>)*
-<fun-def>               -> <id> "(" <param-list> ")" "{" <var-def-list> <stmt-list> "}"
+<fun-def>               -> <id> "(" <param-list> ")" "{" <var-def-list> <stmt-list>* "}"
 <param-list>            -> <id-list>?
 <var-def-list>          -> <var-def>*
-<stmt-list>             -> <stmt>*
 <stmt>                  -> <stmt-assign>|<stmt-inc>|
 
 					        <stmt-dec>|<stmt-fun-call>|
@@ -257,12 +256,9 @@ namespace Falak
 
         public Node VarDef()
         {
-            var result = new VarDef();
-            Expect(TokenCategory.VAR);
-            foreach (var id in IdList())
-            {
-                result.Add(id);
-            }
+            var result = new VarDef() { AnchorToken = Expect(TokenCategory.VAR) };
+            var idList = IdList();
+            result.Add(idList);
             Expect(TokenCategory.END);
             return result;
         }
@@ -289,15 +285,18 @@ namespace Falak
             var paramList = new ParamList();
             if (CurrentToken == TokenCategory.IDENTIFIER)
             {
-                foreach (var id in IdList())
-                {
-                    paramList.Add(id);
-                }
+                paramList.Add(IdList());
             }
             Expect(TokenCategory.PAR_RIGHT);
             Expect(TokenCategory.CURL_LEFT);
+
             var varDefList = VarDefList();
-            Node stmtList = StmtList();
+            var stmtList = new StatementList();
+
+            while (firstOfStatement.Contains(CurrentToken))
+            {
+                stmtList.Add(Statement());
+            }
             var function = new Function() { paramList, varDefList, stmtList };
             function.AnchorToken = functionToken;
             Expect(TokenCategory.CURL_RIGHT);
@@ -307,24 +306,11 @@ namespace Falak
         public Node VarDefList()
         {
             var varDefList = new VarDefList();
-            if (CurrentToken == TokenCategory.VAR)
+            while (CurrentToken == TokenCategory.VAR)
             {
-                foreach (var id in VarDef())
-                {
-                    varDefList.Add(id);
-                }
+                varDefList.Add(VarDef());
             }
             return varDefList;
-        }
-
-        public Node StmtList()
-        {
-            var stmtList = new StatementList();
-            while (firstOfStatement.Contains(CurrentToken))
-            {
-                stmtList.Add(Statement());
-            }
-            return stmtList;
         }
 
         public Node Statement()
@@ -453,7 +439,11 @@ namespace Falak
                 var expr = Expression();
                 Expect(TokenCategory.PAR_RIGHT);
                 Expect(TokenCategory.CURL_LEFT);
-                var stmtList = StmtList();
+                var stmtList = new StatementList();
+                while (firstOfStatement.Contains(CurrentToken))
+                {
+                    stmtList.Add(Statement());
+                }
                 Expect(TokenCategory.CURL_RIGHT);
                 var elseIf = new ElseIf() { expr, stmtList };
                 elseIf.AnchorToken = ifToken;
@@ -505,7 +495,11 @@ namespace Falak
         {
             var doToken = Expect(TokenCategory.DO);
             Expect(TokenCategory.CURL_LEFT);
-            var stmtList = StmtList();
+            var stmtList = new StatementList();
+            while (firstOfStatement.Contains(CurrentToken))
+            {
+                stmtList.Add(Statement());
+            }
             Expect(TokenCategory.CURL_RIGHT);
             Expect(TokenCategory.WHILE);
             Expect(TokenCategory.PAR_LEFT);

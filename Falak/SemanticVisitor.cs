@@ -115,7 +115,7 @@ namespace Falak
 
         public void Visit(VarDef node)
         {
-            foreach (var identifier in node)
+            foreach (var identifier in node[0])
             {
                 var variableName = identifier.AnchorToken.Lexeme;
                 if (TableVariables.Contains(variableName))
@@ -235,18 +235,23 @@ namespace Falak
         public void Visit(VarDefList node)
         {
             var localTable = TableFunctions[inFunction].value;
-            foreach (var identifier in node)
+            foreach (var varDef in node)
             {
-                var varName = identifier.AnchorToken.Lexeme;
-                if (localTable.Contains(varName))
+                var idList = varDef[0];
+                foreach (var identifier in idList)
                 {
-                    throw new SemanticError("Double Variable: " + varName, identifier.AnchorToken);
-                }
-                else
-                {
-                    localTable.Add(varName);
+                    var varName = identifier.AnchorToken.Lexeme;
+                    if (localTable.Contains(varName))
+                    {
+                        throw new SemanticError("Double Variable: " + varName, identifier.AnchorToken);
+                    }
+                    else
+                    {
+                        localTable.Add(varName);
+                    }
                 }
             }
+
         }
 
         public void Visit(ParamList node)

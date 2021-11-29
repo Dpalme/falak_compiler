@@ -92,7 +92,7 @@ namespace Falak
                 var parser = new Parser(
                     new Scanner(input).Scan().GetEnumerator());
                 var program = parser.Program();
-                Console.WriteLine(program.ToStringTree());
+                // Console.WriteLine(program.ToStringTree());
                 Console.WriteLine("Syntax Ok");
 
                 var semantic = new SemanticVisitor();
@@ -127,13 +127,14 @@ namespace Falak
                     "Created Wat (WebAssembly text format) file "
                     + $"'{outputPath}'.");
             }
-            catch (FileNotFoundException e)
+            catch (Exception e)
             {
                 if (e is FileNotFoundException || e is SyntaxError || e is SemanticError)
                 {
                     Console.Error.WriteLine(e.Message);
                     Environment.Exit(1);
                 }
+                throw;
 
             }
         }

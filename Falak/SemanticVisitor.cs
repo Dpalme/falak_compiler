@@ -109,6 +109,9 @@ namespace Falak
             {
                 throw new SemanticError("No main function.");
             }
+            if (TableFunctions["main"].arity != 0) {
+                throw new SemanticError("The main cannot have arguments.");
+            }
         }
         //-----------------------------------------------------------
 
@@ -219,7 +222,7 @@ namespace Falak
             var functionName = node.AnchorToken.Lexeme;
             if (TableFunctions.ContainsKey(functionName))
             {
-                var arity = node.ChildrenLength;
+                var arity = node[0].ChildrenLength;
                 var expectedArity = TableFunctions[functionName].arity;
                 if (arity == expectedArity)
                 {

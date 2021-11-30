@@ -323,12 +323,7 @@ namespace Falak
                         case TokenCategory.ASSIGN:
                             return StatementAssign(idToken);
                         case TokenCategory.PAR_LEFT:
-                            var funNode = new FunCall() { AnchorToken = idToken };
-                            foreach (var arg in StatementFunCall(idToken))
-                            {
-                                funNode.Add(arg);
-                            }
-                            return funNode;
+                            return StatementFunCall(idToken);
                         default:
                             throw new SyntaxError(firstOfAfterIdentifier, tokenStream.Current);
                     }

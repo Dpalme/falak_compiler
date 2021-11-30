@@ -120,13 +120,6 @@ namespace Falak
                 + "   (import \"falak\" \"get\" (func $get (param i32 i32) (result i32)))\n"
                 + "   (import \"falak\" \"set\" (func $set (param i32 i32 i32) (result i32)))\n"
                 + globalsStr
-                + "  (func\n"
-                + "    (export \"start\")\n"
-                + "    (result i32)\n\n"
-                + "    call $main\n"
-                + "    drop\n"
-                + "    i32.const 0\n"
-                + "  )\n"
                 + ""
                 + Visit((dynamic)node[0])
                 + ")\n";
@@ -141,7 +134,7 @@ namespace Falak
             sb.Append($"  block {breakTarget}\n");
             sb.Append($"    loop {label2}\n");
             sb.Append(Visit((dynamic)node[0]));
-            sb.Append( "    i32.eqz\n");
+            sb.Append("    i32.eqz\n");
             sb.Append($"    br_if {breakTarget}\n");
             sb.Append(Visit((dynamic)node[1]));
             sb.Append($"    br {label2}\n");
@@ -161,7 +154,7 @@ namespace Falak
             sb.Append($"    loop {label2}\n");
             sb.Append(Visit((dynamic)node[0]));
             sb.Append(Visit((dynamic)node[1]));
-            sb.Append( "      i32.eqz\n");
+            sb.Append("      i32.eqz\n");
             sb.Append($"      br_if {breakTarget}\n");
             sb.Append($"      br {label2}\n");
             sb.Append("    end\n");
@@ -180,15 +173,31 @@ namespace Falak
         {
             var sb = new StringBuilder();
             sb.Append($"  (func ${node.AnchorToken.Lexeme}\n");
-            foreach (var arg in node[0])
+            if (node.AnchorToken.Lexeme == "main")
             {
-                sb.Append($"    (param ${arg.AnchorToken.Lexeme} i32)\n");
+                sb.Append("    (export \"main\")\n");
+            }
+            if (node[0].ChildrenLength > 0)
+            {
+                foreach (var list in node[0])
+                {
+                    foreach (var arg in list)
+                    {
+                        sb.Append($"    (param ${arg.AnchorToken.Lexeme} i32)\n");
+                    }
+                }
             }
             sb.Append("    (result i32)\n\n");
             sb.Append($"    (local $_temp i32)\n");
-            foreach (var variable in node[1])
+            foreach (var vardef in node[1])
             {
-                sb.Append($"    (local ${variable.AnchorToken.Lexeme} i32)\n");
+                foreach (var list in vardef)
+                {
+                    foreach (var variable in list)
+                    {
+                        sb.Append($"    (local ${variable.AnchorToken.Lexeme} i32)\n");
+                    }
+                }
             }
             sb.Append("\n" + Visit((dynamic)node[2]));
             sb.Append("    i32.const 0\n");
@@ -201,7 +210,8 @@ namespace Falak
             var sb = new StringBuilder();
             sb.Append(VisitChildren(node));
             sb.Append($"    call ${node.AnchorToken.Lexeme}\n");
-            if (!functions[node.AnchorToken.Lexeme].returns) {
+            if (!functions[node.AnchorToken.Lexeme].returns)
+            {
                 sb.Append("    drop\n");
             }
             return sb.ToString();
@@ -272,12 +282,7 @@ namespace Falak
 
         public string Visit(VarDef node)
         {
-            var sb = new StringBuilder();
-            foreach (var identifier in node[0])
-            {
-                sb.Append($"  (local {identifier.AnchorToken.Lexeme} i32)\n");
-            }
-            return sb.ToString();
+            return "";
         }
 
         //-----------------------------------------------------------
@@ -289,9 +294,9 @@ namespace Falak
         //-----------------------------------------------------------
         public string Visit(Assignment node)
         {
-            string nameSpace = globals.Contains(node.AnchorToken.Lexeme) ? "global" : "local";
-            return Visit((dynamic)node[0])
-                + $"    {nameSpace}.set ${node.AnchorToken.Lexeme}\n";
+            string nameSpace = globals.Contains(node[0].AnchorToken.Lexeme) ? "global" : "local";
+            return Visit((dynamic)node[1])
+                + $"    {nameSpace}.set ${node[0].AnchorToken.Lexeme}\n";
         }
 
         //-----------------------------------------------------------
@@ -370,7 +375,7 @@ namespace Falak
         public string Visit(Not node)
         {
             return Visit((dynamic)node[0])
-                +  "    i32.eqz\n";
+                + "    i32.eqz\n";
         }
 
         //-----------------------------------------------------------
@@ -408,7 +413,7 @@ namespace Falak
         //-----------------------------------------------------------
         public string Visit(Plus node)
         {
-            if (node.ChildrenLength == 1) { return Visit((dynamic) node[0]); }
+            if (node.ChildrenLength == 1) { return Visit((dynamic)node[0]); }
             return VisitBinaryOperator("i32.add", node);
         }
 
@@ -481,7 +486,6 @@ namespace Falak
 
         string Visit(Node node)
         {
-            Console.WriteLine(node.ToString());
             var sb = new StringBuilder();
             foreach (var n in node)
             {

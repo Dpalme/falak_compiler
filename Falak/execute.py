@@ -51,7 +51,7 @@ def main():
     instance = Instance(module, import_object)
 
     # Run start function and return to OS its exit code
-    exit(instance.exports.start())
+    exit(instance.exports.main())
 
 
 if __name__ == '__main__':

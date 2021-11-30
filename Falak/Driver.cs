@@ -101,7 +101,7 @@ namespace Falak
                 var parser = new Parser(
                     new Scanner(input).Scan().GetEnumerator());
                 var program = parser.Program();
-                // Console.WriteLine(program.ToStringTree());
+                Console.WriteLine(program.ToStringTree());
                 Console.WriteLine("Syntax Ok");
 
                 var semantic = new SemanticVisitor();
@@ -129,13 +129,13 @@ namespace Falak
                 }
 
 
-                /* var codeGenerator = new WatVisitor(semantic.TableVariables, semantic2.TableFunctions);
-                File.WriteAllText(
-                    outputPath,
-                    codeGenerator.Visit((dynamic)program));
-                Console.WriteLine(
-                    "Created Wat (WebAssembly text format) file "
-                    + $"'{outputPath}'."); */
+                // var codeGenerator = new WatVisitor(semantic.TableVariables, semantic2.TableFunctions);
+                // File.WriteAllText(
+                //     outputPath,
+                //     codeGenerator.Visit((dynamic)program));
+                // Console.WriteLine(
+                //     "Created Wat (WebAssembly text format) file "
+                //     + $"'{outputPath}'.");
             }
             catch (Exception e)
             {

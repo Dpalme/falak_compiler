@@ -46,6 +46,13 @@ namespace Falak
         //-----------------------------------------------------------
         void PrintAppHeader()
         {
+            Console.WriteLine("===========================");
+            Console.WriteLine("|                         |\n|                         |");
+
+            Console.WriteLine("====== NEW TEST FILE ======");
+            Console.WriteLine("|                         |\n|                         |");
+            Console.WriteLine("===========================");
+
             Console.WriteLine("Falak compiler, version " + VERSION);
             Console.WriteLine(
                 "Copyright \u00A9 2013-2021 by A. Ortiz, ITESM CEM. modified"
@@ -85,9 +92,11 @@ namespace Falak
 
             try
             {
+                
                 var inputPath = args[0];
                 var outputPath = Path.ChangeExtension(inputPath, ".wat");
                 var input = File.ReadAllText(inputPath);
+                Console.WriteLine(inputPath);
 
                 var parser = new Parser(
                     new Scanner(input).Scan().GetEnumerator());
@@ -119,13 +128,14 @@ namespace Falak
                     }
                 }
 
-                var codeGenerator = new WatVisitor(semantic.TableVariables, semantic2.TableFunctions);
+
+                /* var codeGenerator = new WatVisitor(semantic.TableVariables, semantic2.TableFunctions);
                 File.WriteAllText(
                     outputPath,
                     codeGenerator.Visit((dynamic)program));
                 Console.WriteLine(
                     "Created Wat (WebAssembly text format) file "
-                    + $"'{outputPath}'.");
+                    + $"'{outputPath}'."); */
             }
             catch (Exception e)
             {

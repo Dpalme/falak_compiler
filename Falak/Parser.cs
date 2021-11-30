@@ -25,7 +25,6 @@
 <program>               -> <def>* EOF
 <def>                   -> <var-def>|<fun-def>
 <var-def>               -> "var" <var-list> ";"
-<var-list>              -> <id-list>
 <id-list>               -> <id> ("," <id>)*
 <fun-def>               -> <id> "(" <param-list> ")" "{" <var-def-list> <stmt-list>* "}"
 <param-list>            -> <id-list>?
@@ -40,11 +39,11 @@
 
 					        <stmt-return>|<stmt-empty>
 
-<stmt-assign>           -> <id> "=" <expr> ";"
+<stmt-assign>           -> "=" <expr> ";"
 <stmt-incr>             -> "inc" <id> ";"
 <stmt-decr>             -> "dec" <id> ";"
 <stmt-fun-call>         -> <fun-call> ";"
-<fun-call>              -> <id> "(" <expr-list> ")"
+<fun-call>              -> "(" <expr-list> ")"
 <expr-list>             -> <expr>? ("," <expr>)*
 <stmt-if>               -> "if" "(" <expr> ")" "{" <stmt-list> "}" <else-if-list> <else>
 <else-if-list>          -> ("elseif" "(" <expr> ")" "{" <stmt-list> "}")*
@@ -325,7 +324,7 @@ namespace Falak
                             return StatementAssign(idToken);
                         case TokenCategory.PAR_LEFT:
                             var funNode = new FunCall() { AnchorToken = idToken };
-                            foreach (var arg in StatementFunCall())
+                            foreach (var arg in StatementFunCall(idToken))
                             {
                                 funNode.Add(arg);
                             }
@@ -366,9 +365,10 @@ namespace Falak
 
         public Node StatementAssign(Token idToken)
         {
-            Expect(TokenCategory.ASSIGN);
+            var assignToken = Expect(TokenCategory.ASSIGN);
             var expr = Expression();
-            var result = new Assignment() { AnchorToken = idToken };
+            var result = new Assignment() { AnchorToken = assignToken };
+            result.Add(new Identifier() {AnchorToken = idToken});
             result.Add(expr);
             Expect(TokenCategory.END);
             return result;
@@ -390,21 +390,22 @@ namespace Falak
             return result;
         }
 
-        public Node StatementFunCall()
+        public Node StatementFunCall(Token idToken)
         {
-            var result = FunCall();
+            var result = new StatementFunCall();
+            var function = FunCall();
             Expect(TokenCategory.END);
+            function.AnchorToken = idToken;
+            result.Add(function);
             return result;
         }
 
         public Node FunCall()
         {
+            
             Expect(TokenCategory.PAR_LEFT);
             var result = new FunCall();
-            foreach (var node in ExprList())
-            {
-                result.Add(node);
-            }
+            result.Add(ExprList());
             Expect(TokenCategory.PAR_RIGHT);
             return result;
         }
@@ -539,7 +540,7 @@ namespace Falak
 
         public Node ExprList()
         {
-            var result = new ExprList();
+            var result = new ExpressionList();
             if (firstOfExpression.Contains(CurrentToken))
             {
                 result.Add(Expression());

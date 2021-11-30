@@ -137,7 +137,7 @@ namespace Falak
             var arity = 0;
             if (node[0].ChildrenLength > 0)
             {
-                arity = node[0].ChildrenLength;
+                arity = node[0][0].ChildrenLength;
             }
             if (TableFunctions.ContainsKey(functionName))
             {
@@ -201,9 +201,15 @@ namespace Falak
 
         public void Visit(Assignment node)
         {
-            if (!TableVariables.Contains(node.AnchorToken.Lexeme) && !TableFunctions[inFunction].value.Contains(node.AnchorToken.Lexeme))
+            var localTable = TableFunctions[inFunction].value;
+            var variableName = node[0].AnchorToken.Lexeme;
+            if (!localTable.Contains(variableName))
             {
-                throw new SemanticError("Undeclared variable: " + node.AnchorToken.Lexeme, node.AnchorToken);
+                if (!TableVariables.Contains(variableName))
+                {
+                    throw new SemanticError("Undeclared variable: " + node.AnchorToken.Lexeme, node.AnchorToken);
+                }
+
             }
             VisitChildren(node);
         }

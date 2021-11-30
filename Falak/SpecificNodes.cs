@@ -33,13 +33,14 @@ namespace Falak {
     class Do: Node {}
     class Else: Node {}
     class Expression: Node {}
-     class ExprList: Node {}
+     class ExpressionList: Node {}
     class ElseIf: Node {}
     class ElseIfList: Node {}
     class Equals: Node {}
     class Or: Node {}    
     class False: Node {}
     class FunCall: Node {}
+    class StatementFunCall: Node {}
     class Function: Node {}
     class Identifier: Node {}
     class If: Node {}

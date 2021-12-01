@@ -109,7 +109,8 @@ namespace Falak
             {
                 throw new SemanticError("No main function.");
             }
-            if (TableFunctions["main"].arity != 0) {
+            if (TableFunctions["main"].arity != 0)
+            {
                 throw new SemanticError("The main cannot have arguments.");
             }
         }
@@ -137,6 +138,7 @@ namespace Falak
         public void Visit(Function node)
         {
             var functionName = node.AnchorToken.Lexeme;
+
             var arity = 0;
             if (node[0].ChildrenLength > 0)
             {
@@ -147,11 +149,14 @@ namespace Falak
                 throw new SemanticError("Duplicated Function: " + functionName, node.AnchorToken);
 
             }
+
             else
             {
                 TableFunctions.Add(functionName, new FunctionRegister(functionName, false, arity, new HashSet<string>(), false));
             }
         }
+
+
     }
 
     //-------------------------SECOND SEMANTIC VISITOR---------------------------------------------
@@ -202,6 +207,18 @@ namespace Falak
         }
         //-----------------------------------------------------------
 
+        public void Visit(Identifier node)
+        {
+            var varName = node.AnchorToken.Lexeme;
+            var localTable = TableFunctions[inFunction].value;
+            
+            if (!localTable.Contains(varName) && !TableVariables.Contains(varName))
+            {
+                throw new SemanticError("Undeclared variable: " + varName, node.AnchorToken);
+            }
+            VisitChildren(node);
+        }
+
         public void Visit(Assignment node)
         {
             var localTable = TableFunctions[inFunction].value;
@@ -212,7 +229,6 @@ namespace Falak
                 {
                     throw new SemanticError("Undeclared variable: " + node.AnchorToken.Lexeme, node.AnchorToken);
                 }
-
             }
             VisitChildren(node);
         }
@@ -266,6 +282,8 @@ namespace Falak
         public void Visit(ParamList node)
         {
             var localTable = TableFunctions[inFunction].value;
+
+
             if (node.ChildrenLength > 0)
             {
                 foreach (var param in node[0])
@@ -275,6 +293,7 @@ namespace Falak
                     {
                         throw new SemanticError("Doble Variable: " + paramName + param.AnchorToken);
                     }
+
                     else
                     {
                         localTable.Add(paramName);
@@ -326,7 +345,9 @@ namespace Falak
 
         public void Visit(While node)
         {
+
             depth += 1;
+
             VisitChildren(node);
             depth -= 1;
         }

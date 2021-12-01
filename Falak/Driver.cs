@@ -110,32 +110,32 @@ namespace Falak
                 semantic2.Visit((dynamic)program);
                 Console.WriteLine("Semantics OK");
 
-                // Console.WriteLine();
-                // Console.WriteLine("Global Variables");
-                // Console.WriteLine("============");
-                // foreach (var entry in semantic.TableVariables)
-                // {
-                //     Console.WriteLine(entry);
-                // }
-                // Console.WriteLine();
-                // Console.WriteLine("Functions");
-                // Console.WriteLine("============");
-                // foreach (var entry in semantic2.TableFunctions)
-                // {
-                //     if (!entry.Value.isPrimitive)
-                //     {
-                //         Console.WriteLine(entry);
-                //     }
-                // }
+                /* Console.WriteLine();
+                Console.WriteLine("Global Variables");
+                Console.WriteLine("============");
+                foreach (var entry in semantic.TableVariables)
+                {
+                    Console.WriteLine(entry);
+                }
+                Console.WriteLine();
+                Console.WriteLine("Functions");
+                Console.WriteLine("============");
+                foreach (var entry in semantic2.TableFunctions)
+                {
+                    if (!entry.Value.isPrimitive)
+                    {
+                        Console.WriteLine(entry);
+                    }
+                } */
 
 
-                var codeGenerator = new WatVisitor(semantic.TableVariables);
+                /* var codeGenerator = new WatVisitor(semantic.TableVariables);
                 File.WriteAllText(
                     outputPath,
                     codeGenerator.Visit((dynamic)program));
                 Console.WriteLine(
                     "Created Wat (WebAssembly text format) file "
-                    + $"'{outputPath}'.");
+                    + $"'{outputPath}'."); */
             }
             catch (Exception e)
             {

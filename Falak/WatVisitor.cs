@@ -88,14 +88,12 @@ namespace Falak
 
         string breakTarget;
         HashSet<string> globals;
-        IDictionary<string, FunctionRegister> functions;
 
         //-----------------------------------------------------------
 
-        public WatVisitor(HashSet<string> variablesTable, IDictionary<string, FunctionRegister> functionsTable)
+        public WatVisitor(HashSet<string> variablesTable)
         {
             this.globals = variablesTable;
-            this.functions = functionsTable;
         }
 
         public string Visit(Program node)
@@ -210,11 +208,12 @@ namespace Falak
             var sb = new StringBuilder();
             sb.Append(VisitChildren(node));
             sb.Append($"    call ${node.AnchorToken.Lexeme}\n");
-            if (!functions[node.AnchorToken.Lexeme].returns)
-            {
-                sb.Append("    drop\n");
-            }
             return sb.ToString();
+        }
+
+        public string Visit(StatementFunCall node ){
+            return VisitChildren(node)
+                 + "    drop\n";
         }
 
         public string Visit(String node)
@@ -381,15 +380,30 @@ namespace Falak
         //-----------------------------------------------------------
         public string Visit(And node)
         {
-            // TODO
-            return VisitBinaryOperator("i32.and", node);
+            var sb = new StringBuilder();
+            sb.Append(Visit((dynamic)node[0]));
+            sb.Append("    if (result i32)\n");
+            sb.Append(Visit((dynamic)node[1]));
+            sb.Append("      i32.eqz\n");
+            sb.Append("      i32.eqz\n");
+            sb.Append("    else\n");
+            sb.Append("      i32.const 0\n");
+            sb.Append("    end\n");
+            return sb.ToString();
         }
-
         //-----------------------------------------------------------
         public string Visit(Or node)
         {
-            // TODO
-            return VisitBinaryOperator("i32.or", node);
+            var sb = new StringBuilder();
+            sb.Append(Visit((dynamic)node[0]));
+            sb.Append("    if (result i32)\n");
+            sb.Append("      i32.const 1\n");
+            sb.Append("    else\n");
+            sb.Append(Visit((dynamic)node[1]));
+            sb.Append("      i32.eqz\n");
+            sb.Append("      i32.eqz\n");
+            sb.Append("    end\n");
+            return sb.ToString();
         }
 
         public string Visit(Inc node)
@@ -470,7 +484,11 @@ namespace Falak
 
         public string Visit(BitOr node)
         {
-            return VisitBinaryOperator("i32.or", node);
+            return Visit((dynamic) node[0])
+                + "    i32.eqz\n"
+                + Visit((dynamic) node[1])
+                + "    i32.eqz\n"
+                + "    i32.ne";
         }
 
         //-----------------------------------------------------------

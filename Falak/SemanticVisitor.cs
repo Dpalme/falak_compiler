@@ -179,7 +179,7 @@ namespace Falak
         //-----------------------------------------------------------
 
         int depth = 0;
-        string inFunction = "_none";
+        string inFunction = "";
         //-----------------------------------------------------------
 
         public SecondSemanticVisitor(HashSet<string> tableVariables, IDictionary<string, FunctionRegister> tableFunctions)
@@ -210,12 +210,23 @@ namespace Falak
         public void Visit(Identifier node)
         {
             var varName = node.AnchorToken.Lexeme;
-            var localTable = TableFunctions[inFunction].value;
-            
-            if (!localTable.Contains(varName) && !TableVariables.Contains(varName))
+            if (inFunction == "")
             {
-                throw new SemanticError("Undeclared variable: " + varName, node.AnchorToken);
+                if (!TableVariables.Contains(varName))
+                {
+                    throw new SemanticError("Undeclared variable: " + varName, node.AnchorToken);
+                }
             }
+            else
+            {
+                var localTable = TableFunctions[inFunction].value;
+                if (!localTable.Contains(varName) && !TableVariables.Contains(varName))
+                {
+                    throw new SemanticError("Undeclared variable: " + varName, node.AnchorToken);
+                }
+            }
+
+
             VisitChildren(node);
         }
 
@@ -307,7 +318,7 @@ namespace Falak
             var functionName = node.AnchorToken.Lexeme;
             inFunction = functionName;
             VisitChildren(node);
-            inFunction = null;
+            inFunction = "";
         }
 
         public void Visit(Return node)
